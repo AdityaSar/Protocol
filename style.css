@@ -170,6 +170,11 @@ body.kinetic .screen::-webkit-scrollbar-thumb {
     width: 100%;
     padding: 60px 40px;
     box-sizing: border-box;
+    border: 1px solid rgba(51, 255, 51, 0.2);
+}
+
+body.kinetic #terminal {
+    border: 2px solid rgba(255, 51, 51, 0.5);
 }
 
 .centered-block {
@@ -431,6 +436,7 @@ body.kinetic .scanline {
     padding: 10px 20px;
     background: rgba(0,0,0,0.8);
     border: 2px solid currentColor;
+    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
 }
 
 #news-ticker {

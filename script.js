@@ -199,6 +199,16 @@ class Terminal {
         }
     }
 
+    async triggerRedFlicker() {
+        for (let i = 0; i < 5; i++) {
+            document.body.classList.add('kinetic');
+            await this.wait(50);
+            document.body.classList.remove('kinetic');
+            await this.wait(50);
+        }
+        document.body.classList.add('kinetic');
+    }
+
     async spawnAlertStorm(count = 20) {
         this.removeWarningSigns();
         this.setKinetic(true);
@@ -444,9 +454,21 @@ class Terminal {
             await this.wait(50);
 
             let lines = output.textContent.split('\n');
-            if (lines.length > 25) {
-                output.textContent = lines.slice(lines.length - 25).join('\n');
+            if (lines.length > 30) {
+                output.textContent = lines.slice(lines.length - 30).join('\n');
             }
+        }
+    }
+
+    async scrollingBitStream(duration = 2000) {
+        let start = Date.now();
+        while (Date.now() - start < duration) {
+            let line = '';
+            for (let i = 0; i < 64; i++) {
+                line += Math.random() > 0.5 ? '1' : '0';
+            }
+            this.print(line);
+            await this.wait(30);
         }
     }
 
@@ -548,8 +570,6 @@ class Terminal {
         window.location.reload();
     }
 
-    async bitStream(duration = 2000) {
-
     async drawMap(sector, target = null, silent = false) {
         let lines = [];
         lines.push(`[ RENDERING TACTICAL GRID: ${sector.toUpperCase()} ]`);
@@ -635,94 +655,45 @@ async function run() {
     await term.wait(1000);
 
     // KERNEL BOOT
-    term.print("[ 0.000000] Linux version 5.10.0-archon-scorpion (root@scorpion-ops) (gcc version 10.2.1)");
-    await term.wait(500);
-    await term.progressBar("MEM_CHECK", 800, 30);
-    term.print("[ OK ] Memory allocation success: 64512MB");
-    await term.progressBar("KERNEL_MODULES", 800, 30);
-    term.print("[ OK ] Archon Security Modules loaded.");
-    await term.wait(500);
+    term.print("[ 0.000000] BIOS_REV: SCORPION-ARCHON-V4.0.2");
+    term.print("[ 0.000124] CPU: SCORPION MULTI-CORE NEURAL PROCESSOR");
+    term.print("[ 0.000342] MEM: 128TB QUANTUM-VOLATILE RAM DETECTED");
+    await term.wait(400);
+    await term.progressBar("MEMORY_TEST", 1500, 30);
+    term.print("[ 1.425312] [ OK ] MEM_ALLOC_SUCCESS: 0x00000000 - 0xFFFFFFFF");
+    await term.wait(300);
+    term.print("[ 1.456721] [ OK ] KERNEL_PANIC_PREVENTED: WATCHDOG_TIMER ACTIVE");
+    term.print("[ 1.489102] [ OK ] MNT/DRIVE_01_ENCRYPTED: RSA-4096 HANDSHAKE COMPLETE");
+    await term.progressBar("KERNEL_MODULES", 1200, 30);
+    term.print("[ 2.612341] [ OK ] CYBER_WARFARE_SUITE_INIT");
+    term.print("[ 2.645112] [ OK ] KINETIC_RELEASE_PROTOCOL_STANDBY");
+    term.print("[ 2.678901] [ OK ] EXO_ATMOSPHERIC_CALIBRATION_READY");
+    await term.wait(800);
 
     term.clear();
     const logo = `
-    ███████╗ ██████╗ ██████╗ ██████╗ ██████╗ ██╗ ██████╗ ███╗   ██╗
-    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗██║██╔═══██╗████╗  ██║
-    ███████╗██║     ██║   ██║██████╔╝██████╔╝██║██║   ██║██╔██╗ ██║
-    ╚════██║██║     ██║   ██║██╔══██╗██╔═══╝ ██║██║   ██║██║╚██╗██║
-    ███████║╚██████╗╚██████╔╝██║  ██║██║     ██║╚██████╔╝██║ ╚████║
-    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+   ███████╗ ██████╗ ██████╗ ██████╗ ██████╗ ██╗ ██████╗ ███╗   ██╗
+   ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗██║██╔═══██╗████╗  ██║
+   ███████╗██║     ██║   ██║██████╔╝██████╔╝██║██║   ██║██╔██╗ ██║
+   ╚════██║██║     ██║   ██║██╔══██╗██╔═══╝ ██║██║   ██║██║╚██╗██║
+   ███████║╚██████╗╚██████╔╝██║  ██║██║     ██║╚██████╔╝██║ ╚████║
+   ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+               [ STRATEGIC DEFENSE & CYBER-WARFARE INTERFACE ]
 
     [ SYSTEM: SCORPION_OS // v4.0.2 ]
     [ STATUS: NOMINAL ] [ DEFCON: 5 ]
     `;
-    await term.type(logo, 10, logoArea);
-    await term.wait(2000);
+    await term.type(logo, 5, logoArea);
+    await term.wait(1500);
 
     while (true) {
         await term.setPrompt("root@scorpion:~/ $ ");
-        term.print("\n[ MAIN OPERATIONAL MENU ]");
-        term.print("1. [ CYBER-WARFARE ] - Remote Access & Data Breach");
-        term.print("2. [ TACTICAL MAP ] - Render Sector Grid");
-        term.print("3. [ STRATEGIC SITREP ] - Global Tension Report");
-        term.print("4. [ KINETIC WARFARE ] - Weapons Authorization & Launch");
-        term.print("5. [ SYSTEM OVERRIDE ] - Bypass Safety Protocols");
-        term.print("6. [ REBOOT ] - Restart System");
+        const input = await term.input();
+        if (!input) continue;
 
-        term.print("\nSELECT MODULE [1-6]:");
-        const choice = await term.input();
-        await term.wait(300);
+        const cmd = input.toLowerCase();
 
-        if (choice === "1") {
-            term.isBusy = true;
-            await handleCyberWarfare();
-            term.isBusy = false;
-        } else if (choice === "2") {
-            term.updateDefcon(3);
-            term.print("ENTER SECTOR COORDINATES:");
-            const sector = await term.input();
-            await term.drawMap(sector || "GLOBAL");
-        } else if (choice === "3") {
-            term.updateDefcon(3);
-            term.print("\n[ INITIATING GLOBAL STRATEGIC SCAN ]");
-            await term.progressBar("SATELLITE_UPLINK", 1500, 30);
-
-            term.print("\n[ GLOBAL STRATEGIC SITUATION REPORT ]");
-            term.print("+------------------------------------------+");
-            term.print("| SECTOR         | TENSION | STATUS        |");
-            term.print("+----------------+---------+---------------+");
-            await term.wait(200);
-            term.print("| NORTH_ATL      | 78%     | ELEVATED      |");
-            await term.wait(200);
-            term.print("| PACIFIC_RIM    | 92%     | CRITICAL      |");
-            await term.wait(200);
-            term.print("| EURASIA        | 85%     | UNSTABLE      |");
-            await term.wait(200);
-            term.print("| OFF-WORLD      | 12%     | NOMINAL       |");
-            term.print("+----------------+---------+---------------+");
-            term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
-            term.print("+------------------------------------------+");
-        } else if (choice === "4") {
-            term.isBusy = true;
-            await handleAuthLaunch({});
-            term.isBusy = false;
-        } else if (choice === "5") {
-            const confirmed = await term.showConfirmationModal(
-                "SYSTEM OVERRIDE DETECTED",
-                "YOU ARE ATTEMPTING TO BYPASS ALL ARCHON SAFETY PROTOCOLS. THIS WILL GRANT KERNEL-LEVEL ACCESS TO STRATEGIC WEAPONS AND GLOBAL SURVEILLANCE SYSTEMS.\n\nUNAUTHORIZED ACCESS IS PUNISHABLE BY MARTIAL LAW.",
-                "OVERRIDE-G-492"
-            );
-            if (confirmed) {
-                term.spawnWarningSigns(12);
-                term.setKinetic(true);
-                term.print("\n+------------------------------------------+");
-                term.print("|   !!! SAFETY PROTOCOLS BYPASSED !!!      |");
-                term.print("+------------------------------------------+");
-                term.print("[ STATE: KINETIC/LETHAL ]");
-                term.print("[ ALL WEAPON LOCKS RELEASED ]");
-            } else {
-                term.print("OVERRIDE ABORTED.");
-            }
-        } else if (choice === "6") {
+        if (cmd.includes("reboot") || cmd.includes("restart")) {
             term.clear();
             term.setKinetic(false);
             term.print("INITIATING SYSTEM REBOOT...");
@@ -737,37 +708,91 @@ async function run() {
             await term.wait(1500);
             await run();
             return;
-        } else {
-            // Check for legacy command support
-            const parts = choice.split(/\s+/);
-            const cmd = parts[0];
-            const args = term.parseArgs(parts.slice(1));
-
-            if (cmd === "net_trace") {
-                const origin = args.origin || "127.0.0.1";
-                term.print(`[ INITIATING REVERSE TRACE: ${origin} ]`);
-                for (let i = 1; i <= 4; i++) {
-                    term.print(`HOP ${i}: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.0.${i} - ${Math.floor(Math.random()*100)}ms`);
-                    await term.wait(300);
-                }
-            } else {
-                term.print("INVALID SELECTION.");
-            }
         }
+
+        term.isBusy = true;
+
+        if (cmd.includes("breach") || cmd.includes("hack") || cmd.includes("fetch") || cmd.includes("attack") || cmd.includes("cyber")) {
+            let target = null;
+            if (cmd.includes("pentagon")) target = "PENTAGON";
+            else if (cmd.includes("nasa")) target = "NASA";
+            else if (cmd.includes("interpol")) target = "INTERPOL";
+            else if (cmd.includes("fsb")) target = "FSB";
+            else if (cmd.includes("mossad")) target = "MOSSAD";
+            else if (cmd.includes("bank")) target = "GLOBAL_BANK";
+            await handleCyberWarfare(target);
+        }
+        else if (cmd.includes("map") || cmd.includes("radar") || cmd.includes("render")) {
+            term.updateDefcon(3);
+            let sector = "GLOBAL";
+            const sectors = ["dc", "msw", "bjg", "pyg", "lon", "par", "del", "tlv"];
+            for (const s of sectors) {
+                if (cmd.includes(s)) sector = s.toUpperCase();
+            }
+            await term.drawMap(sector);
+        }
+        else if (cmd.includes("sitrep") || cmd.includes("tension") || cmd.includes("status")) {
+            await handleSitrep();
+        }
+        else if (cmd.includes("launch") || cmd.includes("strike") || cmd.includes("kinetic") || cmd.includes("icbm") || cmd.includes("missile") || cmd.includes("ion") || cmd.includes("laser")) {
+            let type = null;
+            if (cmd.includes("ion")) type = "ION_CANNON";
+            else if (cmd.includes("laser")) type = "DS_LASER";
+            else if (cmd.includes("missile") || cmd.includes("cruise")) type = "CRUISE_MISSILE";
+            else if (cmd.includes("icbm") || cmd.includes("nuclear")) type = "NUCLEAR_ICBM";
+            await handleAuthLaunch({ type });
+        }
+        else if (cmd.includes("override") || cmd.includes("bypass") || cmd.includes("force")) {
+            await handleSysOverride();
+        }
+        else if (cmd.includes("trace") || cmd.includes("ip") || cmd.includes("origin")) {
+            let origin = "127.0.0.1";
+            const ipMatch = input.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/);
+            if (ipMatch) origin = ipMatch[0];
+            await handleNetTrace(origin);
+        }
+        else if (cmd.includes("intercept") || cmd.includes("signal") || cmd.includes("sigint") || cmd.includes("decrypt")) {
+            await handleSigInt();
+        }
+        else if (cmd.includes("clear") || cmd.includes("cls")) {
+            term.clear();
+        }
+        else if (cmd.includes("help") || cmd.includes("?")) {
+            term.print("\n[ SCORPION_OS COMMAND INTERFACE ]");
+            term.print("SUPPORTED DIRECTIVES (NATURAL LANGUAGE ENABLED):");
+            term.print("- CYBER-WARFARE: 'breach [agency]', 'hack', 'fetch data'");
+            term.print("- TACTICAL MAP: 'render map of [sector]', 'radar scan'");
+            term.print("- STRATEGIC SITREP: 'global status', 'tension report'");
+            term.print("- KINETIC WARFARE: 'launch [weapon] at [target]', 'strike'");
+            term.print("- SYSTEM OVERRIDE: 'sys_override --force', 'bypass protocols'");
+            term.print("- SIGNALS INTEL: 'intercept uplink', 'sig_int --decrypt'");
+            term.print("- NETWORK TRACE: 'trace origin [IP]', 'net_trace'");
+            term.print("- UTILITIES: 'clear', 'reboot'");
+        }
+        else {
+            term.print(`[ ERROR ] DIRECTIVE '${input}' NOT RECOGNIZED BY ARCHON_KERNEL.`);
+            term.print("TYPE 'HELP' FOR LIST OF OPERATIONAL MODULES.");
+        }
+
+        term.isBusy = false;
     }
 }
 
-async function handleCyberWarfare() {
+async function handleCyberWarfare(preselectedTarget = null) {
     term.print("\n[ CYBER-WARFARE MODULE ]");
-    term.print("SELECT TARGET AGENCY:");
-    term.print("1. [ PENTAGON ]   | 2. [ NASA ]       | 3. [ INTERPOL ]");
-    term.print("4. [ FSB ]        | 5. [ MOSSAD ]     | 6. [ GLOBAL_BANK ]");
+    let target = preselectedTarget;
+    if (!target) {
+        term.print("SELECT TARGET AGENCY:");
+        term.print("1. [ PENTAGON ]   | 2. [ NASA ]       | 3. [ INTERPOL ]");
+        term.print("4. [ FSB ]        | 5. [ MOSSAD ]     | 6. [ GLOBAL_BANK ]");
 
-    const targetChoice = await term.input();
-    const targets = { "1": "PENTAGON", "2": "NASA", "3": "INTERPOL", "4": "FSB", "5": "MOSSAD", "6": "GLOBAL_BANK" };
-    let target = targets[targetChoice] || targetChoice;
+        const targetChoice = await term.input();
+        const targets = { "1": "PENTAGON", "2": "NASA", "3": "INTERPOL", "4": "FSB", "5": "MOSSAD", "6": "GLOBAL_BANK" };
+        target = targets[targetChoice] || targetChoice;
+    }
 
-    term.print(`\nSELECT EXPLOIT METHOD FOR [${target}]:`);
+    term.print(`\nTARGET ACQUIRED: [ ${target.toUpperCase()} ]`);
+    term.print(`SELECT EXPLOIT METHOD:`);
     term.print("1. RSA-4096 BUFFER OVERFLOW");
     term.print("2. SQL INJECTION (PROXY-CHAINED)");
     term.print("3. ZERO-DAY KERNEL EXPLOIT");
@@ -782,6 +807,7 @@ async function handleCyberWarfare() {
     term.print(`[ ORDER SENT ] >>> ESTABLISHING PROXY CHAIN...`);
     await term.wait(800);
     term.print(`[ STATUS ] >>> TUNNELING THROUGH 48 NODES...`);
+    await term.scrollingBitStream(1500);
     await term.progressBar("PROXY_SYNC", 1500, 20);
 
     term.print(`[ EXPLOIT ] >>> INJECTING ${method}...`);
@@ -801,6 +827,77 @@ async function handleCyberWarfare() {
     term.print(`[ RESULTS ] >>> 4.2TB STOLEN FROM ${target}`);
     term.print(`[ CLEANUP ] >>> WIPING LOGS AND DISCONNECTING...`);
     await term.wait(1000);
+}
+
+async function handleSitrep() {
+    term.updateDefcon(3);
+    term.print("\n[ INITIATING GLOBAL STRATEGIC SCAN ]");
+    await term.progressBar("SATELLITE_UPLINK", 1500, 30);
+
+    term.print("\n[ GLOBAL STRATEGIC SITUATION REPORT ]");
+    term.print("+------------------------------------------+");
+    term.print("| SECTOR         | TENSION | STATUS        |");
+    term.print("+----------------+---------+---------------+");
+    await term.wait(200);
+    term.print("| NORTH_ATL      | 78%     | ELEVATED      |");
+    await term.wait(200);
+    term.print("| PACIFIC_RIM    | 92%     | CRITICAL      |");
+    await term.wait(200);
+    term.print("| EURASIA        | 85%     | UNSTABLE      |");
+    await term.wait(200);
+    term.print("| OFF-WORLD      | 12%     | NOMINAL       |");
+    term.print("+----------------+---------+---------------+");
+    term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
+    term.print("+------------------------------------------+");
+}
+
+async function handleSysOverride() {
+    const confirmed = await term.showConfirmationModal(
+        "SYSTEM OVERRIDE DETECTED",
+        "YOU ARE ATTEMPTING TO BYPASS ALL ARCHON SAFETY PROTOCOLS. THIS WILL GRANT KERNEL-LEVEL ACCESS TO STRATEGIC WEAPONS AND GLOBAL SURVEILLANCE SYSTEMS.\n\nUNAUTHORIZED ACCESS IS PUNISHABLE BY MARTIAL LAW.",
+        "OVERRIDE-G-492"
+    );
+    if (confirmed) {
+        await term.triggerRedFlicker();
+        term.spawnWarningSigns(12);
+        term.print("\n[ !!! WARNING !!! ]");
+        term.print("+------------------------------------------+");
+        term.print("|   !!! SAFETY PROTOCOLS BYPASSED !!!      |");
+        term.print("+------------------------------------------+");
+        term.print("[ STATE: KINETIC/LETHAL ]");
+        term.print("[ ALL WEAPON LOCKS RELEASED ]");
+        term.updateDefcon(1);
+    } else {
+        term.print("OVERRIDE ABORTED.");
+    }
+}
+
+async function handleNetTrace(origin) {
+    term.print(`[ INITIATING REVERSE TRACE: ${origin} ]`);
+    for (let i = 1; i <= 4; i++) {
+        term.print(`HOP ${i}: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.0.${i} - ${Math.floor(Math.random()*100)}ms`);
+        await term.wait(300);
+    }
+    term.print("[ TRACE COMPLETE ]");
+}
+
+async function handleSigInt() {
+    term.print("\n[ SIGNALS INTELLIGENCE MODULE ACTIVE ]");
+    term.print("[ INTERCEPTING GLOBAL SAT-COM UPLINKS ]");
+    await term.progressBar("SIGNAL_LOCK", 2000, 30);
+
+    // Scrolling bit-stream to hex conversion
+    let start = Date.now();
+    while (Date.now() - start < 3000) {
+        let bitLine = '';
+        for (let i = 0; i < 32; i++) bitLine += Math.random() > 0.5 ? '1' : '0';
+        let hexLine = Math.floor(Math.random() * 0xFFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
+        term.print(`${bitLine} >> [CONVERTING] >> 0x${hexLine}`);
+        await term.wait(50);
+    }
+
+    await term.hexStream(3000, true, "GCHQ_ENCRYPTED");
+    term.print("\n[ INTEL PACKET STORED IN /MNT/SECURE_01 ]");
 }
 
 async function handleAuthLaunch(args) {
@@ -894,10 +991,11 @@ async function handleAuthLaunch(args) {
         coord = `${country.toUpperCase()}_${sector.toUpperCase()}`;
     }
 
+    await term.triggerRedFlicker();
     term.spawnWarningSigns(8);
-    term.setKinetic(true);
 
-    term.print("\n+==========================================+");
+    term.print("\n[ !!! WARNING !!! ]");
+    term.print("+==========================================+");
     term.print(`|   !!! AUTHORIZATION: ${type} !!!   |`);
     term.print("+==========================================+");
     term.print(`TARGET COORDINATES: [ ${coord} ]`);
@@ -1010,10 +1108,23 @@ async function handleAuthLaunch(args) {
         }
 
         if (type.toUpperCase() === 'ION_CANNON' || type.toUpperCase() === 'DS_LASER') {
+            term.print("\n[ INITIATING EXO-ATMOSPHERIC CALIBRATION ]");
+            await term.wait(800);
+            term.print(`[ CALC ] >>> ALTITUDE: 35,786 KM (GEOSTATIONARY)`);
+            term.print(`[ CALC ] >>> RELATIVE VELOCITY: 3.07 KM/S`);
+            term.print(`[ CALC ] >>> LENS_FOCUS: 0.00042 ARC-SECONDS`);
+            await term.progressBar("ORBITAL_ALIGNMENT", 2000, 30);
             term.print(`\n[ ORBITAL COORDINATES: ${coord},042 ]`);
-            term.print(`[ ATMOSPHERIC IGNITION PROBABILITY: ${(Math.random() * 0.1 + 0.89).toFixed(4)} ]`);
+            term.print(`[ ION_DENSITY: 4.2e12 / cm^3 ]`);
+            term.print(`[ ATMOSPHERIC IGNITION PROBABILITY: ${(Math.random() * 0.05 + 0.94).toFixed(4)} ]`);
         } else {
-            term.print(`\n[ ICBM BALLISTIC PATH: SUB-ORBITAL ARC ] [ APOAPSIS: 1200KM ]`);
+            term.print("\n[ INITIATING BALLISTIC TRAJECTORY CALCULATION ]");
+            await term.wait(800);
+            term.print(`[ CALC ] >>> APOAPSIS: 1,200 KM`);
+            term.print(`[ CALC ] >>> RE-ENTRY VELOCITY: MACH 23`);
+            term.print(`[ CALC ] >>> CEP: < 10 METERS`);
+            await term.progressBar("FLIGHT_PATH_SYNC", 2000, 30);
+            term.print(`\n[ ICBM BALLISTIC PATH: SUB-ORBITAL ARC ]`);
         }
 
         term.print("\n[ FINAL CODES VERIFIED ] [ STANDBY FOR LAUNCH ]");
