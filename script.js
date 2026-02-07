@@ -19,7 +19,7 @@ class Terminal {
         terminal.scrollTop = terminal.scrollHeight;
     }
 
-    async type(text, speed = 20) {
+    async type(text, speed = 40) {
         this.isTyping = true;
         cursor.classList.remove('blink');
         for (let i = 0; i < text.length; i++) {
@@ -266,8 +266,8 @@ async function run() {
     [ SYSTEM: SCORPION_OS // v4.0.2 ]
     [ STATUS: NOMINAL ] [ DEFCON: 5 ]
     `;
-    await term.type(logo, 2);
-    await term.wait(1000);
+    await term.type(logo, 10);
+    await term.wait(2000);
 
     while (true) {
         await term.setPrompt("root@scorpion:~/ $ ");
@@ -281,6 +281,7 @@ async function run() {
 
         term.print("\nSELECT MODULE [1-6]:");
         const choice = await term.input();
+        await term.wait(300);
 
         if (choice === "1") {
             await handleCyberWarfare();
@@ -363,9 +364,10 @@ async function handleCyberWarfare() {
     else if (methodChoice === '3') method = "ZERO_DAY";
 
     term.print(`\n[ INITIATING BREACH: ${target} VIA ${method} ]`);
-    await term.bitStream(2000);
-    await term.progressBar("INJECTING PAYLOAD", 1500, 30);
-    await term.hexStream(2000, true, target);
+    await term.wait(800);
+    await term.bitStream(3000);
+    await term.progressBar("INJECTING PAYLOAD", 2500, 30);
+    await term.hexStream(3000, true, target);
     term.print(`[ SUCCESS ] DATA ACQUIRED FROM ${target}`);
 }
 
@@ -385,20 +387,32 @@ async function handleAuthLaunch(args) {
 
         term.print("\n[ INTERACTIVE TARGET ACQUISITION INITIATED ]");
         term.print("SELECT TARGET COUNTRY:");
-        term.print("1. USA");
-        term.print("2. RUSSIA");
-        term.print("3. CHINA");
+        term.print("1. USA       | 2. RUSSIA    | 3. CHINA");
+        term.print("4. N.KOREA   | 5. IRAN      | 6. UK");
+        term.print("7. FRANCE    | 8. INDIA     | 9. ISRAEL");
         const countryChoice = await term.input();
         let country = "UNKNOWN";
         if (countryChoice === "1") country = "USA";
         else if (countryChoice === "2") country = "RUSSIA";
         else if (countryChoice === "3") country = "CHINA";
+        else if (countryChoice === "4") country = "N.KOREA";
+        else if (countryChoice === "5") country = "IRAN";
+        else if (countryChoice === "6") country = "UK";
+        else if (countryChoice === "7") country = "FRANCE";
+        else if (countryChoice === "8") country = "INDIA";
+        else if (countryChoice === "9") country = "ISRAEL";
         else country = countryChoice;
 
         term.print(`\nSELECT SECTOR IN ${country.toUpperCase()}:`);
         if (country.toLowerCase() === 'usa') term.print("1. DC | 2. NY | 3. NORAD");
         else if (country.toLowerCase() === 'russia') term.print("1. MSW | 2. STP | 3. SEV");
         else if (country.toLowerCase() === 'china') term.print("1. BJG | 2. SHG | 3. HKG");
+        else if (country.toLowerCase() === 'n.korea') term.print("1. PYG | 2. WON | 3. HAM");
+        else if (country.toLowerCase() === 'iran') term.print("1. THR | 2. ISF | 3. SHZ");
+        else if (country.toLowerCase() === 'uk') term.print("1. LON | 2. MAN | 3. GLA");
+        else if (country.toLowerCase() === 'france') term.print("1. PAR | 2. MRS | 3. LYN");
+        else if (country.toLowerCase() === 'india') term.print("1. DEL | 2. MUM | 3. BLR");
+        else if (country.toLowerCase() === 'israel') term.print("1. TLV | 2. JRS | 3. HFA");
         else term.print("OPTIONS: [ ALPHA, BRAVO, CHARLIE ]");
 
         const sectorChoice = await term.input();
@@ -415,6 +429,30 @@ async function handleAuthLaunch(args) {
             if (sectorChoice === "1") sector = "BJG";
             else if (sectorChoice === "2") sector = "SHG";
             else if (sectorChoice === "3") sector = "HKG";
+        } else if (country.toLowerCase() === 'n.korea') {
+            if (sectorChoice === "1") sector = "PYG";
+            else if (sectorChoice === "2") sector = "WON";
+            else if (sectorChoice === "3") sector = "HAM";
+        } else if (country.toLowerCase() === 'iran') {
+            if (sectorChoice === "1") sector = "THR";
+            else if (sectorChoice === "2") sector = "ISF";
+            else if (sectorChoice === "3") sector = "SHZ";
+        } else if (country.toLowerCase() === 'uk') {
+            if (sectorChoice === "1") sector = "LON";
+            else if (sectorChoice === "2") sector = "MAN";
+            else if (sectorChoice === "3") sector = "GLA";
+        } else if (country.toLowerCase() === 'france') {
+            if (sectorChoice === "1") sector = "PAR";
+            else if (sectorChoice === "2") sector = "MRS";
+            else if (sectorChoice === "3") sector = "LYN";
+        } else if (country.toLowerCase() === 'india') {
+            if (sectorChoice === "1") sector = "DEL";
+            else if (sectorChoice === "2") sector = "MUM";
+            else if (sectorChoice === "3") sector = "BLR";
+        } else if (country.toLowerCase() === 'israel') {
+            if (sectorChoice === "1") sector = "TLV";
+            else if (sectorChoice === "2") sector = "JRS";
+            else if (sectorChoice === "3") sector = "HFA";
         }
 
         await term.simulateTargetSelection(country, sector);
@@ -441,13 +479,13 @@ async function handleAuthLaunch(args) {
         term.print("!!! KINETIC WEAPONS AUTHORIZED !!!");
         term.print("!".repeat(50));
         term.print(`[ TYPE: ${type.toUpperCase()} ] [ COORD: ${coord} ]\n`);
-        await term.wait(1000);
+        await term.wait(2000);
 
-        await term.progressBar(`CALIBRATING ${type.toUpperCase()}`, 2000, 40);
+        await term.progressBar(`CALIBRATING ${type.toUpperCase()}`, 4000, 40);
 
         // Flight Path Trajectory Animation
         term.print("\n[ CALCULATING BALLISTIC TRAJECTORY ]");
-        await term.wait(500);
+        await term.wait(1500);
 
         const gridHeight = 10;
         const gridWidth = 40;
@@ -458,7 +496,7 @@ async function handleAuthLaunch(args) {
                 else line += ".";
             }
             term.print(line);
-            await term.wait(100);
+            await term.wait(250);
         }
 
         if (type.toUpperCase() === 'ION_CANNON' || type.toUpperCase() === 'DS_LASER') {
