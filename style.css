@@ -13,16 +13,19 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    text-shadow: 0 0 5px rgba(51, 255, 51, 0.8);
+    /* Phosphor bloom glow */
+    text-shadow: 0 0 8px rgba(51, 255, 51, 0.4);
 }
 
 body.kinetic {
     background-color: #0a0101;
     color: #ff3333;
-    text-shadow: 0 0 8px rgba(255, 51, 51, 0.9);
+    text-shadow: 0 0 12px rgba(255, 51, 51, 0.6);
     animation: shake 0.3s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate, text-flicker 0.05s infinite;
     text-transform: uppercase;
     font-weight: bold;
+    /* Kinetic Distortion */
+    filter: contrast(1.5) brightness(1.2);
 }
 
 @keyframes text-flicker {
@@ -59,14 +62,19 @@ body.kinetic {
     left: 50%;
     transform: translate(-50%, -50%);
     background: #000;
-    border: 5px solid #ff0000;
+    border: 8px solid #ff0000;
     padding: 30px;
     z-index: 2000;
     width: 60%;
     max-width: 800px;
     text-align: center;
     box-shadow: 0 0 50px #ff0000;
-    animation: modal-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: modal-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), modal-pulse 0.5s infinite alternate;
+}
+
+@keyframes modal-pulse {
+    from { border-color: #ff0000; box-shadow: 0 0 30px #ff0000; }
+    to { border-color: #ff5555; box-shadow: 0 0 60px #ff0000; }
 }
 
 @keyframes modal-appear {
@@ -283,18 +291,19 @@ body.kinetic .screen::-webkit-scrollbar-thumb {
 
 .scanline {
     width: 100%;
-    height: 100px;
+    height: 120px; /* Thicker */
     z-index: 103;
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.2) 10%, rgba(0, 0, 0, 0.1) 100%);
-    opacity: 0.1;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.25) 10%, rgba(0, 0, 0, 0.1) 100%);
+    opacity: 0.15;
     position: absolute;
     bottom: 100%;
+    filter: blur(2px); /* Blurred */
     animation: scanline 10s linear infinite;
 }
 
 body.kinetic .scanline {
-    background: linear-gradient(0deg, rgba(255, 0, 0, 0) 0%, rgba(255, 0, 0, 0.5) 10%, rgba(255, 0, 0, 0.2) 100%);
-    opacity: 0.3;
+    background: linear-gradient(0deg, rgba(255, 0, 0, 0) 0%, rgba(255, 0, 0, 0.6) 10%, rgba(255, 0, 0, 0.3) 100%);
+    opacity: 0.4;
     animation: scanline 2s linear infinite;
 }
 
@@ -410,6 +419,95 @@ body.kinetic .scanline {
 #close-video:hover {
     background: #fff;
     color: #ff0000;
+}
+
+#defcon-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 32px;
+    font-weight: 900;
+    z-index: 1000;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.8);
+    border: 2px solid currentColor;
+}
+
+#news-ticker {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 20, 0, 0.9);
+    color: #33ff33;
+    padding: 5px 0;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    z-index: 1000;
+    border-top: 1px solid #33ff33;
+}
+
+body.kinetic #news-ticker {
+    background: rgba(20, 0, 0, 0.9);
+    color: #ff3333;
+    border-top: 1px solid #ff3333;
+}
+
+#news-marquee {
+    display: inline-block;
+    padding-left: 100%;
+    animation: marquee 30s linear infinite;
+}
+
+@keyframes marquee {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-100%, 0); }
+}
+
+body.defcon-2 {
+    animation: defcon-2-flash 1s infinite alternate;
+}
+
+@keyframes defcon-2-flash {
+    from { background: #0a0101; }
+    to { background: #2a0000; }
+}
+
+body.defcon-1 {
+    animation: defcon-1-flash 0.2s infinite alternate;
+}
+
+@keyframes defcon-1-flash {
+    from { background: #ff0000; color: #fff; }
+    to { background: #000; color: #ff0000; }
+}
+
+/* Hex wall game styles */
+.hex-column {
+    display: inline-block;
+    width: 45%;
+    vertical-align: top;
+    font-size: 14px;
+    overflow: hidden;
+    height: 60vh;
+    position: relative;
+}
+
+.hex-row {
+    padding: 2px 0;
+}
+
+.hex-row.red {
+    color: #fff;
+    background: #ff0000;
+    font-weight: bold;
+    animation: pulse-red 0.1s infinite;
+}
+
+@keyframes pulse-red {
+    from { opacity: 0.8; }
+    to { opacity: 1; }
 }
 
 /* Vignette/Curvature effect simulation */

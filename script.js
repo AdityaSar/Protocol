@@ -4,12 +4,47 @@ const terminal = document.getElementById('terminal');
 const promptLabel = document.getElementById('prompt-label');
 const userInputElement = document.getElementById('user-input');
 const cursor = document.getElementById('cursor');
+const defconIndicator = document.getElementById('defcon-indicator');
+const newsMarquee = document.getElementById('news-marquee');
 
 class Terminal {
     constructor() {
         this.buffer = [];
         this.isTyping = false;
         this.inputActive = false;
+        this.currentDefcon = 5;
+        this.idleTimer = null;
+        this.isBusy = false;
+        this.startIdleTimer();
+    }
+
+    updateDefcon(level) {
+        if (level < this.currentDefcon) {
+            this.currentDefcon = level;
+            defconIndicator.textContent = `[ DEFCON: ${this.currentDefcon} ]`;
+
+            // Apply body classes for visual effects
+            document.body.classList.remove('defcon-5', 'defcon-4', 'defcon-3', 'defcon-2', 'defcon-1');
+            document.body.classList.add(`defcon-${this.currentDefcon}`);
+
+            if (this.currentDefcon === 4) {
+                defconIndicator.style.color = "#ffff33";
+                this.updateNews("SATELLITE ANOMALY DETECTED IN NORTHERN HEMISPHERE");
+            } else if (this.currentDefcon === 3) {
+                defconIndicator.style.color = "#ff9933";
+                this.updateNews("UN SECURITY COUNCIL CONVENING EMERGENCY SESSION");
+            } else if (this.currentDefcon === 2) {
+                defconIndicator.style.color = "#ff3333";
+                this.updateNews("GLOBAL DEFENSE NETWORKS SHIFTING TO KINETIC FOOTING");
+            } else if (this.currentDefcon === 1) {
+                defconIndicator.style.color = "#ffffff";
+                this.updateNews("STRATEGIC WEAPONS RELEASE AUTHORIZED - GOD HELP US ALL");
+            }
+        }
+    }
+
+    updateNews(headline) {
+        newsMarquee.textContent = `*** ${headline.toUpperCase()} *** ${headline.toUpperCase()} ***`;
     }
 
     async wait(ms) {
@@ -58,7 +93,50 @@ class Terminal {
         promptLabel.textContent = text;
     }
 
+    startIdleTimer() {
+        if (this.idleTimer) clearTimeout(this.idleTimer);
+        this.idleTimer = setTimeout(() => {
+            if (!this.isBusy && !this.inputActive) {
+                this.triggerCounterHack();
+            } else {
+                this.startIdleTimer();
+            }
+        }, 45000); // 45 seconds idle
+    }
+
+    async triggerCounterHack() {
+        this.isBusy = true;
+        this.print("\n" + "!".repeat(50));
+        this.print(`*** INTRUSION DETECTED from ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.12.89 ***`);
+        this.print("!!! ENTER 'BLOCK' TO PREVENT SYSTEM LOCKOUT !!!");
+        this.print("!!! TIME REMAINING: 15 SECONDS !!!");
+        this.print("!".repeat(50));
+
+        const timeout = setTimeout(async () => {
+            this.inputActive = false;
+            this.clear();
+            this.print("\n".repeat(5));
+            this.print("          [ SYSTEM LOCKED BY EXTERNAL ENTITY ]");
+            this.print("          [ LOCKOUT DURATION: 60 SECONDS ]");
+            document.body.classList.add('defcon-1');
+            await this.wait(60000);
+            document.body.classList.remove('defcon-1');
+            this.isBusy = false;
+            this.startIdleTimer();
+            this.print("\n[ LOCKOUT EXPIRED - SYSTEM RESTORED ]");
+        }, 15000);
+
+        const val = await this.input();
+        if (val.toUpperCase() === "BLOCK") {
+            clearTimeout(timeout);
+            this.print("\n[ INTRUSION BLOCKED - PROXY RE-ROUTED ]");
+            this.isBusy = false;
+            this.startIdleTimer();
+        }
+    }
+
     async input() {
+        this.startIdleTimer();
         this.inputActive = true;
         userInputElement.textContent = '';
         cursor.classList.add('blink');
@@ -121,8 +199,47 @@ class Terminal {
         }
     }
 
-    spawnWarningSigns(count = 12) {
+    async spawnAlertStorm(count = 20) {
         this.removeWarningSigns();
+        this.setKinetic(true);
+        this.updateDefcon(2);
+
+        const warnings = [
+            "[ !!! WARNING !!! ]",
+            "[ WEAPON AUTHORIZED ]",
+            "[ KINETIC STRIKE IMMINENT ]",
+            "[ NUCLEAR THREAT DETECTED ]",
+            "[ SYSTEM OVERRIDE ACTIVE ]",
+            "[ ACCESS DENIED ]",
+            "[ CRITICAL FAILURE ]",
+            "[ PROTOCOL 0-0-0 ]"
+        ];
+
+        let delay = 800;
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement('div');
+            div.className = 'warning-sign';
+            div.textContent = warnings[Math.floor(Math.random() * warnings.length)];
+
+            // Randomly position but roughly frame
+            const x = Math.random() * 80 + 10;
+            const y = Math.random() * 80 + 10;
+
+            div.style.left = x + '%';
+            div.style.top = y + '%';
+            div.style.transform = `translate(-50%, -50%) rotate(${(Math.random() - 0.5) * 30}deg)`;
+            document.body.appendChild(div);
+
+            // Increase shake intensity via inline style override
+            const shakeSpeed = (0.3 - (i * 0.01)).toFixed(2);
+            document.body.style.animationDuration = `${shakeSpeed}s, 0.5s, 2s, 0.05s`;
+
+            await this.wait(delay);
+            delay *= 0.85; // Exponential acceleration
+        }
+    }
+
+    spawnWarningSigns(count = 12) {
         const warnings = [
             "[ !!! WARNING !!! ]",
             "[ WEAPON AUTHORIZED ]",
@@ -333,21 +450,105 @@ class Terminal {
         }
     }
 
-    async bitStream(duration = 2000) {
-        let start = Date.now();
-        while (Date.now() - start < duration) {
-            let line = '';
-            for (let i = 0; i < 64; i++) {
-                line += Math.random() > 0.5 ? '1' : '0';
+    async hexWallGame() {
+        this.clear();
+        this.print("[ INITIATING ACTIVE DEFENSE BYPASS ]");
+        this.print("[ OBJECTIVE: TYPE 'DECRYPT' WHEN A ROW TURNS RED ]");
+        await this.wait(1000);
+        this.clear();
+
+        const col1 = document.createElement('div');
+        const col2 = document.createElement('div');
+        col1.className = 'hex-column';
+        col2.className = 'hex-column';
+        output.appendChild(col1);
+        output.appendChild(col2);
+
+        let successes = 0;
+        let failures = 0;
+        let gameRunning = true;
+
+        const generateHex = () => {
+            let res = '';
+            for(let i=0; i<8; i++) res += Math.floor(Math.random()*16).toString(16).toUpperCase();
+            return res;
+        };
+
+        const updateColumn = (col) => {
+            const row = document.createElement('div');
+            row.className = 'hex-row';
+            row.textContent = `${generateHex()} ${generateHex()} ${generateHex()} ${generateHex()}`;
+            if (Math.random() > 0.92) {
+                row.classList.add('red');
+                row.dataset.active = "true";
+                // Row stays red for a short time
+                setTimeout(() => {
+                    if (row.dataset.active === "true") {
+                        row.dataset.active = "false";
+                        row.classList.remove('red');
+                        failures++;
+                        if (failures >= 3) gameRunning = false;
+                    }
+                }, 1000);
             }
-            this.print(line);
-            await this.wait(30);
-            let lines = output.textContent.split('\n');
-            if (lines.length > 25) {
-                output.textContent = lines.slice(lines.length - 25).join('\n');
-            }
-        }
+            col.prepend(row);
+            if (col.childNodes.length > 20) col.lastChild.remove();
+        };
+
+        const gameLoop = setInterval(() => {
+            if (!gameRunning) return;
+            updateColumn(col1);
+            updateColumn(col2);
+        }, 150);
+
+        return new Promise(async (resolve) => {
+            const handleInput = async () => {
+                while (gameRunning && successes < 3) {
+                    const val = await this.input();
+                    if (val.toUpperCase() === "DECRYPT") {
+                        const activeRow = document.querySelector('.hex-row.red[data-active="true"]');
+                        if (activeRow) {
+                            activeRow.dataset.active = "false";
+                            activeRow.classList.remove('red');
+                            activeRow.style.background = "#00ff00";
+                            activeRow.style.color = "#000";
+                            successes++;
+                            this.print(`[ SUCCESS: ${successes}/3 ]`);
+                        } else {
+                            this.print("[ ERROR: NO ACTIVE TARGET ]");
+                        }
+                    } else {
+                        this.print("[ ERROR: INVALID COMMAND ]");
+                    }
+                }
+
+                clearInterval(gameLoop);
+                if (successes >= 3) {
+                    this.clear();
+                    this.print("[ BREACH SUCCESSFUL ]");
+                    await this.wait(1000);
+                    resolve(true);
+                } else {
+                    await this.triggerReboot();
+                    resolve(false);
+                }
+            };
+            handleInput();
+        });
     }
+
+    async triggerReboot() {
+        document.body.classList.add('defcon-1');
+        this.clear();
+        for (let i = 0; i < 20; i++) {
+            this.print(`KERNEL_PANIC: STACK_OVERFLOW_AT_0x${Math.floor(Math.random()*0xFFFFFFFF).toString(16)}`);
+            await this.wait(50);
+        }
+        await this.wait(1000);
+        window.location.reload();
+    }
+
+    async bitStream(duration = 2000) {
 
     async drawMap(sector, target = null, silent = false) {
         let lines = [];
@@ -472,12 +673,16 @@ async function run() {
         await term.wait(300);
 
         if (choice === "1") {
+            term.isBusy = true;
             await handleCyberWarfare();
+            term.isBusy = false;
         } else if (choice === "2") {
+            term.updateDefcon(3);
             term.print("ENTER SECTOR COORDINATES:");
             const sector = await term.input();
             await term.drawMap(sector || "GLOBAL");
         } else if (choice === "3") {
+            term.updateDefcon(3);
             term.print("\n[ INITIATING GLOBAL STRATEGIC SCAN ]");
             await term.progressBar("SATELLITE_UPLINK", 1500, 30);
 
@@ -497,7 +702,9 @@ async function run() {
             term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
             term.print("+------------------------------------------+");
         } else if (choice === "4") {
+            term.isBusy = true;
             await handleAuthLaunch({});
+            term.isBusy = false;
         } else if (choice === "5") {
             const confirmed = await term.showConfirmationModal(
                 "SYSTEM OVERRIDE DETECTED",
@@ -578,7 +785,8 @@ async function handleCyberWarfare() {
     await term.progressBar("PROXY_SYNC", 1500, 20);
 
     term.print(`[ EXPLOIT ] >>> INJECTING ${method}...`);
-    await term.bitStream(2000);
+    const hacked = await term.hexWallGame();
+    if (!hacked) return;
 
     term.print(`[ STATUS ] >>> KERNEL PANIC DETECTED ON TARGET... BYPASSING.`);
     await term.wait(1000);
@@ -588,6 +796,7 @@ async function handleCyberWarfare() {
 
     await term.hexStream(3000, true, target);
 
+    term.updateDefcon(4);
     term.print(`\n[ MISSION COMPLETE ]`);
     term.print(`[ RESULTS ] >>> 4.2TB STOLEN FROM ${target}`);
     term.print(`[ CLEANUP ] >>> WIPING LOGS AND DISCONNECTING...`);
@@ -604,9 +813,12 @@ async function handleAuthLaunch(args) {
         term.print("1. NUCLEAR ICBM (MIRV-EQUIPPED)");
         term.print("2. ION CANNON (ORBITAL)");
         term.print("3. DEEP-SPACE LASER");
+        term.print("4. TACTICAL CRUISE MISSILE");
         const typeChoice = await term.input();
+        term.updateDefcon(2);
         if (typeChoice === "2") type = "ION_CANNON";
         else if (typeChoice === "3") type = "DS_LASER";
+        else if (typeChoice === "4") type = "CRUISE_MISSILE";
 
         term.print("\n[ INTERACTIVE TARGET ACQUISITION INITIATED ]");
         term.print("SELECT TARGET COUNTRY:");
@@ -697,6 +909,35 @@ async function handleAuthLaunch(args) {
     await term.wait(1000);
     term.print(`CODES ACCEPTED: [ ${codes.toUpperCase()} ]`);
 
+    const dossiers = {
+        "DC": { pop: "712,000", strat: "Political Command & Control", weather: "Clear" },
+        "NY": { pop: "8,400,000", strat: "Global Financial Hub", weather: "Overcast" },
+        "NORAD": { pop: "Minimal", strat: "Aerospace Defense Command", weather: "Freezing" },
+        "MSW": { pop: "12,600,000", strat: "Federation Leadership", weather: "Snowing" },
+        "STP": { pop: "5,400,000", strat: "Naval Infrastructure", weather: "Fog" },
+        "BJG": { pop: "21,500,000", strat: "CCP Command Center", weather: "Hazy" },
+        "SHG": { pop: "24,800,000", strat: "Economic Gateway", weather: "Rain" },
+        "PYG": { pop: "2,800,000", strat: "Regime Stronghold", weather: "Cold" },
+        "THR": { pop: "8,600,000", strat: "Regional Power Base", weather: "Arid" },
+        "LON": { pop: "8,900,000", strat: "Allied Strategic Hub", weather: "Mist" },
+        "PAR": { pop: "2,100,000", strat: "European Cultural/Gov Center", weather: "Mild" },
+        "DEL": { pop: "18,900,000", strat: "Regional Command", weather: "Extreme Heat" },
+        "TLV": { pop: "460,000", strat: "Technological R&D Hub", weather: "Sunny" }
+    };
+
+    const targetKey = coord.split('_')[1];
+    const dossier = dossiers[targetKey] || { pop: "Unknown", strat: "Collateral Sector", weather: "Unstable" };
+
+    term.print("\n[ ACCESSING TARGET DOSSIER ]");
+    await term.wait(800);
+    term.print(`> POPULATION: ${dossier.pop}`);
+    term.print(`> STRATEGIC VALUE: ${dossier.strat}`);
+    term.print(`> LOCAL CONDITIONS: ${dossier.weather}`);
+    await term.wait(1500);
+
+    await term.spawnAlertStorm(20);
+    term.updateDefcon(1);
+
     const confirmed = await term.showConfirmationModal(
         "CONFIRM STRATEGIC DIRECTIVE",
         `YOU ARE AUTHORIZING A KINETIC STRIKE USING WEAPON SYSTEM [${type}] AGAINST TARGET [${coord}].\n\nTHIS ACTION IS IRREVERSIBLE AND CARRIES EXTREME CASUALTY PROBABILITY.`,
@@ -704,8 +945,23 @@ async function handleAuthLaunch(args) {
     );
 
     if (confirmed) {
+        // THE SILENCE
         term.removeWarningSigns();
+        document.body.style.animation = "none";
+        document.body.classList.remove('kinetic');
+        document.body.classList.remove('defcon-1', 'defcon-2', 'defcon-3', 'defcon-4');
+        defconIndicator.style.display = 'none';
+        newsMarquee.parentElement.style.display = 'none';
         term.clear();
+
+        await term.wait(2000); // 2 seconds of silence
+
+        // RESTORE THE UI for the profile
+        defconIndicator.style.display = 'block';
+        newsMarquee.parentElement.style.display = 'block';
+        document.body.classList.add('kinetic');
+        document.body.classList.add('defcon-1');
+
         term.print("\n[ STRATEGIC MISSION PROFILE ]");
         term.print("------------------------------------------");
         term.print(`DIRECTIVE:   KINETIC_PURGE`);
@@ -772,8 +1028,11 @@ async function handleAuthLaunch(args) {
         await term.wait(1000);
 
         // PLAY CINEMATIC VIDEO FEED
-        // Sample ID: ICBM Launch sequence
-        await term.playVideo("vX-W-M33l-k");
+        let videoId = "9reL_rQp7og"; // Default ICBM
+        if (type === "ION_CANNON" || type === "DS_LASER") videoId = "3_v_0N-S3vM";
+        if (type === "CRUISE_MISSILE") videoId = "9d8wWcJLnFI";
+
+        await term.playVideo(videoId);
 
         // Simulation of screen flash / explosion
         for (let i = 0; i < 5; i++) {
@@ -789,7 +1048,13 @@ async function handleAuthLaunch(args) {
         term.clear();
         term.print("\n\n\n");
         term.print("          [ MISSION ACCOMPLISHED ]");
-        term.print("          [ TARGET NEUTRALIZED ]");
+
+        if (type === "ION_CANNON" || type === "DS_LASER" || type === "CRUISE_MISSILE") {
+            term.print("          [ SURGICAL STRIKE SUCCESSFUL ]");
+        } else {
+            term.print("          [ TOTAL SECTOR ANNIHILATION ]");
+        }
+
         term.print("\n          [ WORLD DEFENSE SYSTEM: ACTIVE ]");
         await term.wait(4000);
 
