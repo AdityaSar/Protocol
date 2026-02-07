@@ -121,7 +121,7 @@ class Terminal {
         }
     }
 
-    spawnWarningSigns(count = 10) {
+    spawnWarningSigns(count = 12) {
         this.removeWarningSigns();
         const warnings = [
             "[ !!! WARNING !!! ]",
@@ -138,9 +138,27 @@ class Terminal {
             const div = document.createElement('div');
             div.className = 'warning-sign';
             div.textContent = warnings[Math.floor(Math.random() * warnings.length)];
-            div.style.left = Math.random() * 80 + 10 + '%';
-            div.style.top = Math.random() * 80 + 10 + '%';
-            div.style.transform = `translate(-50%, -50%) rotate(${(Math.random() - 0.5) * 40}deg)`;
+
+            // Frame the center modal by placing signs in the periphery
+            const side = i % 4; // Distribute evenly among 4 sides
+            let x, y;
+            if (side === 0) { // Top band
+                x = Math.random() * 90 + 5;
+                y = Math.random() * 15 + 5;
+            } else if (side === 1) { // Bottom band
+                x = Math.random() * 90 + 5;
+                y = Math.random() * 15 + 80;
+            } else if (side === 2) { // Left band
+                x = Math.random() * 15 + 5;
+                y = Math.random() * 70 + 15;
+            } else { // Right band
+                x = Math.random() * 15 + 80;
+                y = Math.random() * 70 + 15;
+            }
+
+            div.style.left = x + '%';
+            div.style.top = y + '%';
+            div.style.transform = `translate(-50%, -50%) rotate(${(Math.random() - 0.5) * 20}deg)`;
             document.body.appendChild(div);
         }
     }
@@ -150,7 +168,7 @@ class Terminal {
         signs.forEach(s => s.remove());
     }
 
-    async showConfirmationModal(header, bodyText) {
+    async showConfirmationModal(header, bodyText, requiredCode = null) {
         return new Promise(resolve => {
             const container = document.createElement('div');
             container.className = 'modal-container';
@@ -163,25 +181,100 @@ class Terminal {
             b.className = 'modal-body';
             b.textContent = bodyText;
 
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'modal-input-container';
+            inputContainer.style.margin = '30px 0';
+            inputContainer.style.padding = '15px';
+            inputContainer.style.border = '2px solid #ff0000';
+            inputContainer.style.fontSize = '28px';
+            inputContainer.style.background = '#1a0000';
+            inputContainer.style.fontFamily = "'Terminal', monospace";
+
+            const inputLabel = document.createElement('span');
+            inputLabel.textContent = 'AUTH_TOKEN: ';
+            inputLabel.style.color = '#ff0000';
+
+            const inputVal = document.createElement('span');
+            inputVal.style.color = '#fff';
+            inputVal.textContent = '';
+
+            const mCursor = document.createElement('span');
+            mCursor.className = 'blink';
+            mCursor.textContent = ' ';
+            mCursor.style.background = '#ff0000';
+            mCursor.style.display = 'inline-block';
+            mCursor.style.width = '12px';
+            mCursor.style.height = '24px';
+            mCursor.style.marginLeft = '5px';
+            mCursor.style.verticalAlign = 'middle';
+
+            inputContainer.appendChild(inputLabel);
+            inputContainer.appendChild(inputVal);
+            inputContainer.appendChild(mCursor);
+
             const footer = document.createElement('div');
             footer.style.marginTop = '20px';
             footer.style.fontSize = '24px';
+            footer.style.transition = 'opacity 0.3s';
+            footer.style.opacity = requiredCode ? '0.2' : '1.0';
             footer.innerHTML = `PRESS <span style="color:#fff; background:#ff0000; padding: 5px;">[ENTER]</span> TO CONFIRM DIRECTIVE<br>OR <span style="color:#fff; background:#555; padding: 5px;">[ESC]</span> TO ABORT`;
 
             container.appendChild(h);
             container.appendChild(b);
+            if (requiredCode) container.appendChild(inputContainer);
             container.appendChild(footer);
             document.body.appendChild(container);
 
+            let currentInput = "";
+
             const onKeyDown = (e) => {
-                if (e.key === 'Enter') {
-                    window.removeEventListener('keydown', onKeyDown);
-                    container.remove();
-                    resolve(true);
-                } else if (e.key === 'Escape') {
-                    window.removeEventListener('keydown', onKeyDown);
-                    container.remove();
-                    resolve(false);
+                if (requiredCode) {
+                    if (e.key === 'Enter') {
+                        if (currentInput.toUpperCase() === requiredCode.toUpperCase()) {
+                            window.removeEventListener('keydown', onKeyDown);
+                            container.remove();
+                            resolve(true);
+                        } else {
+                            // Shake on fail
+                            container.style.animation = 'none';
+                            void container.offsetWidth;
+                            container.style.animation = 'shake 0.3s 1';
+                            currentInput = "";
+                            inputVal.textContent = "";
+                            footer.style.opacity = '0.2';
+                        }
+                    } else if (e.key === 'Escape') {
+                        window.removeEventListener('keydown', onKeyDown);
+                        container.remove();
+                        resolve(false);
+                    } else if (e.key === 'Backspace') {
+                        currentInput = currentInput.slice(0, -1);
+                        inputVal.textContent = currentInput;
+                        e.preventDefault();
+                    } else if (e.key.length === 1) {
+                        currentInput += e.key;
+                        inputVal.textContent = currentInput;
+                    }
+
+                    if (currentInput.toUpperCase() === requiredCode.toUpperCase()) {
+                        footer.style.opacity = '1.0';
+                        inputContainer.style.borderColor = '#00ff00';
+                        inputVal.style.color = '#00ff00';
+                    } else {
+                        footer.style.opacity = '0.2';
+                        inputContainer.style.borderColor = '#ff0000';
+                        inputVal.style.color = '#fff';
+                    }
+                } else {
+                    if (e.key === 'Enter') {
+                        window.removeEventListener('keydown', onKeyDown);
+                        container.remove();
+                        resolve(true);
+                    } else if (e.key === 'Escape') {
+                        window.removeEventListener('keydown', onKeyDown);
+                        container.remove();
+                        resolve(false);
+                    }
                 }
             };
             window.addEventListener('keydown', onKeyDown);
@@ -312,6 +405,26 @@ class Terminal {
         this.replaceLastLines(12, finalMap);
         this.print(`[ LOCK ACQUIRED: ${sector.toUpperCase()} ]`);
     }
+
+    async playVideo(youtubeId) {
+        return new Promise(resolve => {
+            const overlay = document.getElementById('video-overlay');
+            const playerDiv = document.getElementById('player');
+            overlay.classList.remove('hidden');
+
+            // Using YouTube embed with parameters for a cinematic look
+            playerDiv.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&controls=0&mute=1&loop=1&playlist=${youtubeId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+
+            const closeBtn = document.getElementById('close-video');
+            const close = () => {
+                overlay.classList.add('hidden');
+                playerDiv.innerHTML = '';
+                closeBtn.removeEventListener('click', close);
+                resolve();
+            };
+            closeBtn.addEventListener('click', close);
+        });
+    }
 }
 
 const term = new Terminal();
@@ -388,7 +501,8 @@ async function run() {
         } else if (choice === "5") {
             const confirmed = await term.showConfirmationModal(
                 "SYSTEM OVERRIDE DETECTED",
-                "YOU ARE ATTEMPTING TO BYPASS ALL ARCHON SAFETY PROTOCOLS. THIS WILL GRANT KERNEL-LEVEL ACCESS TO STRATEGIC WEAPONS AND GLOBAL SURVEILLANCE SYSTEMS.\n\nUNAUTHORIZED ACCESS IS PUNISHABLE BY MARTIAL LAW."
+                "YOU ARE ATTEMPTING TO BYPASS ALL ARCHON SAFETY PROTOCOLS. THIS WILL GRANT KERNEL-LEVEL ACCESS TO STRATEGIC WEAPONS AND GLOBAL SURVEILLANCE SYSTEMS.\n\nUNAUTHORIZED ACCESS IS PUNISHABLE BY MARTIAL LAW.",
+                "OVERRIDE-G-492"
             );
             if (confirmed) {
                 term.spawnWarningSigns(12);
@@ -585,7 +699,8 @@ async function handleAuthLaunch(args) {
 
     const confirmed = await term.showConfirmationModal(
         "CONFIRM STRATEGIC DIRECTIVE",
-        `YOU ARE AUTHORIZING A KINETIC STRIKE USING WEAPON SYSTEM [${type}] AGAINST TARGET [${coord}].\n\nTHIS ACTION IS IRREVERSIBLE AND CARRIES EXTREME CASUALTY PROBABILITY.`
+        `YOU ARE AUTHORIZING A KINETIC STRIKE USING WEAPON SYSTEM [${type}] AGAINST TARGET [${coord}].\n\nTHIS ACTION IS IRREVERSIBLE AND CARRIES EXTREME CASUALTY PROBABILITY.`,
+        "SCORPION-LAUNCH-ALPHA"
     );
 
     if (confirmed) {
@@ -654,7 +769,11 @@ async function handleAuthLaunch(args) {
         }
 
         term.print("\n[ IGNITION ]");
-        await term.wait(500);
+        await term.wait(1000);
+
+        // PLAY CINEMATIC VIDEO FEED
+        // Sample ID: ICBM Launch sequence
+        await term.playVideo("vX-W-M33l-k");
 
         // Simulation of screen flash / explosion
         for (let i = 0; i < 5; i++) {

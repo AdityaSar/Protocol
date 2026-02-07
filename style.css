@@ -20,7 +20,7 @@ body.kinetic {
     background-color: #0a0101;
     color: #ff3333;
     text-shadow: 0 0 8px rgba(255, 51, 51, 0.9);
-    animation: shake 0.1s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate, text-flicker 0.05s infinite;
+    animation: shake 0.3s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate, text-flicker 0.05s infinite;
     text-transform: uppercase;
     font-weight: bold;
 }
@@ -116,17 +116,17 @@ body.kinetic::after {
 }
 
 @keyframes shake {
-    0% { transform: translate(2px, 2px) rotate(0deg); }
-    10% { transform: translate(-2px, -4px) rotate(-1deg); }
-    20% { transform: translate(-6px, 0px) rotate(1deg); }
-    30% { transform: translate(6px, 4px) rotate(0deg); }
-    40% { transform: translate(2px, -2px) rotate(1deg); }
-    50% { transform: translate(-2px, 4px) rotate(-1deg); }
-    60% { transform: translate(-6px, 4px) rotate(0deg); }
-    70% { transform: translate(6px, 4px) rotate(-1deg); }
-    80% { transform: translate(-2px, -2px) rotate(1deg); }
-    90% { transform: translate(2px, 4px) rotate(0deg); }
-    100% { transform: translate(2px, -2px) rotate(-1deg); }
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    10% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+    20% { transform: translate(-2px, 0px) rotate(0.5deg); }
+    30% { transform: translate(2px, 1px) rotate(0deg); }
+    40% { transform: translate(1px, -1px) rotate(0.5deg); }
+    50% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+    60% { transform: translate(-2px, 1px) rotate(0deg); }
+    70% { transform: translate(2px, 1px) rotate(-0.5deg); }
+    80% { transform: translate(-1px, -1px) rotate(0.5deg); }
+    90% { transform: translate(1px, 1px) rotate(0deg); }
+    100% { transform: translate(1px, -1px) rotate(-0.5deg); }
 }
 
 .screen {
@@ -349,6 +349,67 @@ body.kinetic .scanline {
     60% { transform: translate(2px, 2px); }
     80% { transform: translate(2px, -2px); }
     100% { transform: translate(0); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+#video-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 3000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#video-container {
+    width: 80%;
+    height: 80%;
+    border: 10px solid #ff0000;
+    background: #000;
+    position: relative;
+    box-shadow: 0 0 100px #ff0000;
+    display: flex;
+    flex-direction: column;
+}
+
+#player {
+    flex-grow: 1;
+    width: 100%;
+}
+
+.video-frame-text {
+    background: #ff0000;
+    color: #000;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+}
+
+#close-video {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: #ff0000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-family: 'Terminal', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#close-video:hover {
+    background: #fff;
+    color: #ff0000;
 }
 
 /* Vignette/Curvature effect simulation */
