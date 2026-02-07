@@ -70,7 +70,6 @@ body.kinetic::after {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center horizontally */
     position: relative;
     z-index: 1;
     box-sizing: border-box;
@@ -96,9 +95,22 @@ body.kinetic .screen::-webkit-scrollbar-thumb {
 
 #terminal {
     width: 100%;
-    max-width: 800px; /* Limit width to center content */
-    padding: 60px 40px; /* Extra horizontal padding to avoid vignette */
+    padding: 60px 40px;
     box-sizing: border-box;
+}
+
+.centered-block {
+    text-align: center;
+    width: 100%;
+    display: block;
+    margin-bottom: 20px;
+}
+
+#logo-area {
+    text-align: center;
+    white-space: pre;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
 #output {

@@ -1,4 +1,5 @@
 const output = document.getElementById('output');
+const logoArea = document.getElementById('logo-area');
 const terminal = document.getElementById('terminal');
 const promptLabel = document.getElementById('prompt-label');
 const userInputElement = document.getElementById('user-input');
@@ -19,15 +20,15 @@ class Terminal {
         terminal.scrollTop = terminal.scrollHeight;
     }
 
-    async type(text, speed = 40) {
+    async type(text, speed = 40, target = output) {
         this.isTyping = true;
         cursor.classList.remove('blink');
         for (let i = 0; i < text.length; i++) {
-            output.textContent += text[i];
+            target.textContent += text[i];
             this.scrollToBottom();
             await this.wait(speed);
         }
-        output.textContent += '\n';
+        if (target === output) output.textContent += '\n';
         this.scrollToBottom();
         cursor.classList.add('blink');
         this.isTyping = false;
@@ -50,6 +51,7 @@ class Terminal {
 
     clear() {
         output.textContent = '';
+        logoArea.textContent = '';
     }
 
     async setPrompt(text) {
@@ -266,7 +268,7 @@ async function run() {
     [ SYSTEM: SCORPION_OS // v4.0.2 ]
     [ STATUS: NOMINAL ] [ DEFCON: 5 ]
     `;
-    await term.type(logo, 10);
+    await term.type(logo, 10, logoArea);
     await term.wait(2000);
 
     while (true) {
