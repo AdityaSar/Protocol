@@ -20,9 +20,74 @@ body.kinetic {
     background-color: #0a0101;
     color: #ff3333;
     text-shadow: 0 0 8px rgba(255, 51, 51, 0.9);
-    animation: shake 0.4s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate;
+    animation: shake 0.1s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate, text-flicker 0.05s infinite;
     text-transform: uppercase;
     font-weight: bold;
+}
+
+@keyframes text-flicker {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
+}
+
+.warning-sign {
+    position: absolute;
+    background: #ff0000;
+    color: #000;
+    padding: 10px 20px;
+    font-weight: 900;
+    font-size: 24px;
+    border: 4px solid #fff;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 0 20px #ff0000;
+    animation: warning-pulse 0.2s infinite;
+    white-space: pre;
+    text-align: center;
+}
+
+@keyframes warning-pulse {
+    0% { transform: scale(1); background: #ff0000; color: #fff; }
+    50% { transform: scale(1.1); background: #fff; color: #ff0000; }
+    100% { transform: scale(1); background: #ff0000; color: #fff; }
+}
+
+.modal-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #000;
+    border: 5px solid #ff0000;
+    padding: 30px;
+    z-index: 2000;
+    width: 60%;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 0 0 50px #ff0000;
+    animation: modal-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modal-appear {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.modal-header {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: #ff0000;
+    text-decoration: underline;
+    animation: glitch 0.2s infinite;
+}
+
+.modal-body {
+    font-size: 20px;
+    color: #ff3333;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+    animation: text-flicker 0.1s infinite;
 }
 
 @keyframes red-glow {
@@ -51,17 +116,17 @@ body.kinetic::after {
 }
 
 @keyframes shake {
-    0% { transform: translate(0.5px, 0.5px) rotate(0deg); }
-    10% { transform: translate(-0.5px, -0.5px) rotate(-0.2deg); }
-    20% { transform: translate(-1px, 0px) rotate(0.2deg); }
-    30% { transform: translate(1px, 0.5px) rotate(0deg); }
-    40% { transform: translate(0.5px, -0.5px) rotate(0.2deg); }
-    50% { transform: translate(-0.5px, 0.5px) rotate(-0.2deg); }
-    60% { transform: translate(-1px, 0.5px) rotate(0deg); }
-    70% { transform: translate(1px, 0.5px) rotate(-0.2deg); }
-    80% { transform: translate(-0.5px, -0.5px) rotate(0.2deg); }
-    90% { transform: translate(0.5px, 1px) rotate(0deg); }
-    100% { transform: translate(0.5px, -0.5px) rotate(-0.2deg); }
+    0% { transform: translate(2px, 2px) rotate(0deg); }
+    10% { transform: translate(-2px, -4px) rotate(-1deg); }
+    20% { transform: translate(-6px, 0px) rotate(1deg); }
+    30% { transform: translate(6px, 4px) rotate(0deg); }
+    40% { transform: translate(2px, -2px) rotate(1deg); }
+    50% { transform: translate(-2px, 4px) rotate(-1deg); }
+    60% { transform: translate(-6px, 4px) rotate(0deg); }
+    70% { transform: translate(6px, 4px) rotate(-1deg); }
+    80% { transform: translate(-2px, -2px) rotate(1deg); }
+    90% { transform: translate(2px, 4px) rotate(0deg); }
+    100% { transform: translate(2px, -2px) rotate(-1deg); }
 }
 
 .screen {

@@ -117,7 +117,75 @@ class Terminal {
         } else {
             document.body.classList.remove('kinetic');
             output.classList.remove('glitch');
+            this.removeWarningSigns();
         }
+    }
+
+    spawnWarningSigns(count = 10) {
+        this.removeWarningSigns();
+        const warnings = [
+            "[ !!! WARNING !!! ]",
+            "[ WEAPON AUTHORIZED ]",
+            "[ KINETIC STRIKE IMMINENT ]",
+            "[ NUCLEAR THREAT DETECTED ]",
+            "[ SYSTEM OVERRIDE ACTIVE ]",
+            "[ ACCESS DENIED ]",
+            "[ CRITICAL FAILURE ]",
+            "[ PROTOCOL 0-0-0 ]"
+        ];
+
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement('div');
+            div.className = 'warning-sign';
+            div.textContent = warnings[Math.floor(Math.random() * warnings.length)];
+            div.style.left = Math.random() * 80 + 10 + '%';
+            div.style.top = Math.random() * 80 + 10 + '%';
+            div.style.transform = `translate(-50%, -50%) rotate(${(Math.random() - 0.5) * 40}deg)`;
+            document.body.appendChild(div);
+        }
+    }
+
+    removeWarningSigns() {
+        const signs = document.querySelectorAll('.warning-sign');
+        signs.forEach(s => s.remove());
+    }
+
+    async showConfirmationModal(header, bodyText) {
+        return new Promise(resolve => {
+            const container = document.createElement('div');
+            container.className = 'modal-container';
+
+            const h = document.createElement('div');
+            h.className = 'modal-header';
+            h.textContent = header;
+
+            const b = document.createElement('div');
+            b.className = 'modal-body';
+            b.textContent = bodyText;
+
+            const footer = document.createElement('div');
+            footer.style.marginTop = '20px';
+            footer.style.fontSize = '24px';
+            footer.innerHTML = `PRESS <span style="color:#fff; background:#ff0000; padding: 5px;">[ENTER]</span> TO CONFIRM DIRECTIVE<br>OR <span style="color:#fff; background:#555; padding: 5px;">[ESC]</span> TO ABORT`;
+
+            container.appendChild(h);
+            container.appendChild(b);
+            container.appendChild(footer);
+            document.body.appendChild(container);
+
+            const onKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    window.removeEventListener('keydown', onKeyDown);
+                    container.remove();
+                    resolve(true);
+                } else if (e.key === 'Escape') {
+                    window.removeEventListener('keydown', onKeyDown);
+                    container.remove();
+                    resolve(false);
+                }
+            };
+            window.addEventListener('keydown', onKeyDown);
+        });
     }
 
     async progressBar(label, duration = 2000, width = 20) {
@@ -223,8 +291,12 @@ class Terminal {
     }
 
     async simulateTargetSelection(country, sector) {
-        this.print("\nINITIALIZING TARGET ACQUISITION...");
+        this.print("\n[ STATUS ] >>> INITIATING TARGET ACQUISITION...");
         await this.wait(500);
+        this.print("[ STATUS ] >>> HANDSHAKING WITH KH-11 SPY SATELLITE...");
+        await this.wait(1000);
+        this.print("[ STATUS ] >>> RECEIVING ENCRYPTED TELEMETRY...");
+        await this.wait(800);
 
         let lastMapText = await this.drawMap(sector);
 
@@ -243,6 +315,7 @@ class Terminal {
 }
 
 const term = new Terminal();
+window.term = term;
 
 async function run() {
     await term.wait(1000);
@@ -292,13 +365,20 @@ async function run() {
             const sector = await term.input();
             await term.drawMap(sector || "GLOBAL");
         } else if (choice === "3") {
+            term.print("\n[ INITIATING GLOBAL STRATEGIC SCAN ]");
+            await term.progressBar("SATELLITE_UPLINK", 1500, 30);
+
             term.print("\n[ GLOBAL STRATEGIC SITUATION REPORT ]");
             term.print("+------------------------------------------+");
             term.print("| SECTOR         | TENSION | STATUS        |");
             term.print("+----------------+---------+---------------+");
+            await term.wait(200);
             term.print("| NORTH_ATL      | 78%     | ELEVATED      |");
+            await term.wait(200);
             term.print("| PACIFIC_RIM    | 92%     | CRITICAL      |");
+            await term.wait(200);
             term.print("| EURASIA        | 85%     | UNSTABLE      |");
+            await term.wait(200);
             term.print("| OFF-WORLD      | 12%     | NOMINAL       |");
             term.print("+----------------+---------+---------------+");
             term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
@@ -306,20 +386,34 @@ async function run() {
         } else if (choice === "4") {
             await handleAuthLaunch({});
         } else if (choice === "5") {
-            term.print("BYPASS REQUIRES CONFIRMATION. TYPE 'OVERRIDE' TO PROCEED:");
-            const confirm = await term.input();
-            if (confirm.toUpperCase() === "OVERRIDE") {
+            const confirmed = await term.showConfirmationModal(
+                "SYSTEM OVERRIDE DETECTED",
+                "YOU ARE ATTEMPTING TO BYPASS ALL ARCHON SAFETY PROTOCOLS. THIS WILL GRANT KERNEL-LEVEL ACCESS TO STRATEGIC WEAPONS AND GLOBAL SURVEILLANCE SYSTEMS.\n\nUNAUTHORIZED ACCESS IS PUNISHABLE BY MARTIAL LAW."
+            );
+            if (confirmed) {
+                term.spawnWarningSigns(12);
                 term.setKinetic(true);
                 term.print("\n+------------------------------------------+");
                 term.print("|   !!! SAFETY PROTOCOLS BYPASSED !!!      |");
                 term.print("+------------------------------------------+");
                 term.print("[ STATE: KINETIC/LETHAL ]");
+                term.print("[ ALL WEAPON LOCKS RELEASED ]");
             } else {
                 term.print("OVERRIDE ABORTED.");
             }
         } else if (choice === "6") {
             term.clear();
             term.setKinetic(false);
+            term.print("INITIATING SYSTEM REBOOT...");
+            await term.wait(1000);
+            term.print("TERMINATING ACTIVE PROCESSES...");
+            await term.wait(500);
+            term.print("UNLOADING KERNEL MODULES...");
+            await term.wait(500);
+            term.print("SHUTTING DOWN ARCHON SECURITY SUBSYSTEM...");
+            await term.wait(1000);
+            term.clear();
+            await term.wait(1500);
             await run();
             return;
         } else {
@@ -345,32 +439,45 @@ async function run() {
 async function handleCyberWarfare() {
     term.print("\n[ CYBER-WARFARE MODULE ]");
     term.print("SELECT TARGET AGENCY:");
-    term.print("A. PENTAGON");
-    term.print("B. NASA");
-    term.print("C. INTERPOL");
+    term.print("1. [ PENTAGON ]   | 2. [ NASA ]       | 3. [ INTERPOL ]");
+    term.print("4. [ FSB ]        | 5. [ MOSSAD ]     | 6. [ GLOBAL_BANK ]");
+
     const targetChoice = await term.input();
-    let target = "UNKNOWN";
-    if (targetChoice.toUpperCase() === 'A') target = "PENTAGON";
-    else if (targetChoice.toUpperCase() === 'B') target = "NASA";
-    else if (targetChoice.toUpperCase() === 'C') target = "INTERPOL";
-    else target = targetChoice;
+    const targets = { "1": "PENTAGON", "2": "NASA", "3": "INTERPOL", "4": "FSB", "5": "MOSSAD", "6": "GLOBAL_BANK" };
+    let target = targets[targetChoice] || targetChoice;
 
     term.print(`\nSELECT EXPLOIT METHOD FOR [${target}]:`);
     term.print("1. RSA-4096 BUFFER OVERFLOW");
     term.print("2. SQL INJECTION (PROXY-CHAINED)");
     term.print("3. ZERO-DAY KERNEL EXPLOIT");
     const methodChoice = await term.input();
-    let method = "MANUAL_INTRUSION";
-    if (methodChoice === '1') method = "RSA_OVERFLOW";
-    else if (methodChoice === '2') method = "SQL_INJECTION";
-    else if (methodChoice === '3') method = "ZERO_DAY";
+    const methods = { "1": "RSA_OVERFLOW", "2": "SQL_INJECTION", "3": "ZERO_DAY" };
+    let method = methods[methodChoice] || "MANUAL_INTRUSION";
 
-    term.print(`\n[ INITIATING BREACH: ${target} VIA ${method} ]`);
+    term.print(`\n[ INITIATING BREACH: ${target} ]`);
+    await term.wait(500);
+
+    // ROLEPLAYING SEQUENCE
+    term.print(`[ ORDER SENT ] >>> ESTABLISHING PROXY CHAIN...`);
     await term.wait(800);
-    await term.bitStream(3000);
-    await term.progressBar("INJECTING PAYLOAD", 2500, 30);
+    term.print(`[ STATUS ] >>> TUNNELING THROUGH 48 NODES...`);
+    await term.progressBar("PROXY_SYNC", 1500, 20);
+
+    term.print(`[ EXPLOIT ] >>> INJECTING ${method}...`);
+    await term.bitStream(2000);
+
+    term.print(`[ STATUS ] >>> KERNEL PANIC DETECTED ON TARGET... BYPASSING.`);
+    await term.wait(1000);
+
+    term.print(`[ DOWNLOAD ] >>> EXFILTRATING ENCRYPTED VOLUMES...`);
+    await term.progressBar("EXFILTRATION", 3000, 40);
+
     await term.hexStream(3000, true, target);
-    term.print(`[ SUCCESS ] DATA ACQUIRED FROM ${target}`);
+
+    term.print(`\n[ MISSION COMPLETE ]`);
+    term.print(`[ RESULTS ] >>> 4.2TB STOLEN FROM ${target}`);
+    term.print(`[ CLEANUP ] >>> WIPING LOGS AND DISCONNECTING...`);
+    await term.wait(1000);
 }
 
 async function handleAuthLaunch(args) {
@@ -461,7 +568,9 @@ async function handleAuthLaunch(args) {
         coord = `${country.toUpperCase()}_${sector.toUpperCase()}`;
     }
 
+    term.spawnWarningSigns(8);
     term.setKinetic(true);
+
     term.print("\n+==========================================+");
     term.print(`|   !!! AUTHORIZATION: ${type} !!!   |`);
     term.print("+==========================================+");
@@ -473,17 +582,45 @@ async function handleAuthLaunch(args) {
     term.print("\nVERIFYING CODES...");
     await term.wait(1000);
     term.print(`CODES ACCEPTED: [ ${codes.toUpperCase()} ]`);
-    term.print("FINAL CONFIRMATION (TYPE 'CONFIRM' TO TRIGGER):");
-    const confirm = await term.input();
 
-    if (confirm.toLowerCase() === 'confirm') {
+    const confirmed = await term.showConfirmationModal(
+        "CONFIRM STRATEGIC DIRECTIVE",
+        `YOU ARE AUTHORIZING A KINETIC STRIKE USING WEAPON SYSTEM [${type}] AGAINST TARGET [${coord}].\n\nTHIS ACTION IS IRREVERSIBLE AND CARRIES EXTREME CASUALTY PROBABILITY.`
+    );
+
+    if (confirmed) {
+        term.removeWarningSigns();
+        term.clear();
+        term.print("\n[ STRATEGIC MISSION PROFILE ]");
+        term.print("------------------------------------------");
+        term.print(`DIRECTIVE:   KINETIC_PURGE`);
+        term.print(`OPERATOR:    SCORPION_AI`);
+        term.print(`WEAPON:      ${type.toUpperCase()}`);
+        term.print(`TARGET:      ${coord}`);
+        term.print(`ETA:         480 SECONDS`);
+        term.print(`EXPECTED:    TOTAL_NEUTRALIZATION`);
+        term.print("------------------------------------------");
+        await term.wait(2000);
+
         term.print("\n" + "!".repeat(50));
         term.print("!!! KINETIC WEAPONS AUTHORIZED !!!");
         term.print("!".repeat(50));
         term.print(`[ TYPE: ${type.toUpperCase()} ] [ COORD: ${coord} ]\n`);
-        await term.wait(2000);
+        await term.wait(1000);
 
-        await term.progressBar(`CALIBRATING ${type.toUpperCase()}`, 4000, 40);
+        // CINEMATIC ROLEPLAYING SEQUENCE
+        term.print(`[ ORDER SENT ] >>> CODES TRANSMITTED TO SILO_04...`);
+        await term.wait(800);
+        term.print(`[ STATUS ] >>> DE-PASSIVATING THERMAL BATTERIES...`);
+        await term.wait(800);
+        term.print(`[ STATUS ] >>> CALIBRATING GYROSCOPIC SENSORS...`);
+        await term.progressBar("CALIBRATION", 2500, 40);
+
+        term.print(`[ STATUS ] >>> INITIATING LOX/RP-1 FUELING SEQUENCE...`);
+        await term.progressBar("FUELING", 3500, 40);
+
+        term.print(`[ STATUS ] >>> SYSTEMS ONLINE. INTERNAL POWER ACTIVE.`);
+        await term.wait(1000);
 
         // Flight Path Trajectory Animation
         term.print("\n[ CALCULATING BALLISTIC TRAJECTORY ]");
@@ -498,7 +635,7 @@ async function handleAuthLaunch(args) {
                 else line += ".";
             }
             term.print(line);
-            await term.wait(250);
+            await term.wait(200);
         }
 
         if (type.toUpperCase() === 'ION_CANNON' || type.toUpperCase() === 'DS_LASER') {
@@ -517,7 +654,6 @@ async function handleAuthLaunch(args) {
         }
 
         term.print("\n[ IGNITION ]");
-        term.setKinetic(true); // Ensure kinetic mode is active for final flash
         await term.wait(500);
 
         // Simulation of screen flash / explosion
