@@ -11,6 +11,7 @@ body {
     padding: 0;
     overflow: hidden;
     height: 100vh;
+    width: 100vw;
     display: flex;
     flex-direction: column;
     /* Phosphor bloom glow */
@@ -18,14 +19,14 @@ body {
 }
 
 body.kinetic {
-    background-color: #0a0101;
-    color: #ff3333;
-    text-shadow: 0 0 12px rgba(255, 51, 51, 0.6);
-    animation: shake 0.3s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate, text-flicker 0.05s infinite;
+    background-color: #1a0000;
+    color: #ff0000;
+    text-shadow: 0 0 15px rgba(255, 0, 0, 0.8), 0 0 2px #ffffff;
+    animation: shake 0.1s infinite, flash 0.2s ease-out, red-glow 1s infinite alternate, text-flicker 0.02s infinite;
     text-transform: uppercase;
-    font-weight: bold;
+    font-weight: 900;
     /* Kinetic Distortion */
-    filter: contrast(1.5) brightness(1.2);
+    filter: contrast(2) brightness(1.1) saturate(1.5);
 }
 
 @keyframes text-flicker {
@@ -99,8 +100,8 @@ body.kinetic {
 }
 
 @keyframes red-glow {
-    from { box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.2); }
-    to { box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.5); }
+    from { box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.4); }
+    to { box-shadow: inset 0 0 200px rgba(255, 0, 0, 0.8); }
 }
 
 body.kinetic .crt-overlay::after {
@@ -168,13 +169,32 @@ body.kinetic .screen::-webkit-scrollbar-thumb {
 
 #terminal {
     width: 100%;
-    padding: 60px 40px;
+    height: 100%;
+    padding: 100px 60px;
     box-sizing: border-box;
-    border: 1px solid rgba(51, 255, 51, 0.2);
+    border: 20px solid #050505;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: inset 0 0 100px rgba(0,255,0,0.05);
+}
+
+#terminal::before {
+    content: "";
+    position: absolute;
+    top: -10px; left: -10px; right: -10px; bottom: -10px;
+    border: 2px solid rgba(51, 255, 51, 0.3);
+    pointer-events: none;
 }
 
 body.kinetic #terminal {
-    border: 2px solid rgba(255, 51, 51, 0.5);
+    border-color: #1a0000;
+    box-shadow: inset 0 0 100px rgba(255,0,0,0.1);
+}
+
+body.kinetic #terminal::before {
+    border-color: rgba(255, 51, 51, 0.6);
 }
 
 .centered-block {
@@ -393,6 +413,16 @@ body.kinetic .scanline {
     flex-direction: column;
 }
 
+#alerts-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+}
+
 #player {
     flex-grow: 1;
     width: 100%;
@@ -426,17 +456,42 @@ body.kinetic .scanline {
     color: #ff0000;
 }
 
+#top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 40, 0, 0.8);
+    border-bottom: 2px solid #33ff33;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 14px;
+    z-index: 1100;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #33ff33;
+}
+
+body.kinetic #top-bar {
+    background: rgba(40, 0, 0, 0.8);
+    border-bottom: 2px solid #ff3333;
+    color: #ff3333;
+    text-shadow: 0 0 5px #ff3333;
+}
+
 #defcon-indicator {
     position: fixed;
-    top: 20px;
+    top: 60px;
     right: 20px;
     font-size: 32px;
     font-weight: 900;
     z-index: 1000;
     padding: 10px 20px;
-    background: rgba(0,0,0,0.8);
-    border: 2px solid currentColor;
+    background: rgba(0,0,0,0.9);
+    border: 4px solid currentColor;
     clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+    box-shadow: 0 0 20px currentColor;
 }
 
 #news-ticker {
