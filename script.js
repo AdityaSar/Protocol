@@ -1,4 +1,5 @@
 const output = document.getElementById('output');
+const terminal = document.getElementById('terminal');
 const promptLabel = document.getElementById('prompt-label');
 const userInputElement = document.getElementById('user-input');
 const cursor = document.getElementById('cursor');
@@ -14,22 +15,27 @@ class Terminal {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    async type(text, speed = 30) {
+    scrollToBottom() {
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    async type(text, speed = 20) {
         this.isTyping = true;
         cursor.classList.remove('blink');
         for (let i = 0; i < text.length; i++) {
             output.textContent += text[i];
-            window.scrollTo(0, document.body.scrollHeight);
+            this.scrollToBottom();
             await this.wait(speed);
         }
         output.textContent += '\n';
+        this.scrollToBottom();
         cursor.classList.add('blink');
         this.isTyping = false;
     }
 
     print(text) {
         output.textContent += text + '\n';
-        window.scrollTo(0, document.body.scrollHeight);
+        this.scrollToBottom();
     }
 
     replaceLastLines(n, text) {
@@ -39,7 +45,7 @@ class Terminal {
 
         lines.splice(-n);
         output.textContent = lines.join('\n') + '\n' + text + '\n';
-        window.scrollTo(0, document.body.scrollHeight);
+        this.scrollToBottom();
     }
 
     clear() {
@@ -54,6 +60,7 @@ class Terminal {
         this.inputActive = true;
         userInputElement.textContent = '';
         cursor.classList.add('blink');
+        this.scrollToBottom();
         return new Promise(resolve => {
             const onKeyDown = (e) => {
                 if (!this.inputActive) return;
@@ -71,7 +78,7 @@ class Terminal {
                 } else if (e.key.length === 1) {
                     userInputElement.textContent += e.key;
                 }
-                window.scrollTo(0, document.body.scrollHeight);
+                this.scrollToBottom();
             };
             window.addEventListener('keydown', onKeyDown);
         });
@@ -241,9 +248,9 @@ async function run() {
     // KERNEL BOOT
     term.print("[ 0.000000] Linux version 5.10.0-archon-scorpion (root@scorpion-ops) (gcc version 10.2.1)");
     await term.wait(500);
-    await term.progressBar("MEM_CHECK", 1000, 30);
+    await term.progressBar("MEM_CHECK", 800, 30);
     term.print("[ OK ] Memory allocation success: 64512MB");
-    await term.progressBar("KERNEL_MODULES", 1000, 30);
+    await term.progressBar("KERNEL_MODULES", 800, 30);
     term.print("[ OK ] Archon Security Modules loaded.");
     await term.wait(500);
 
@@ -257,108 +264,158 @@ async function run() {
     ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 
     [ SYSTEM: SCORPION_OS // v4.0.2 ]
-    [ STATUS: NOMINAL ]
-    [ DEFCON: 5 ]
+    [ STATUS: NOMINAL ] [ DEFCON: 5 ]
     `;
-    term.print(logo);
+    await term.type(logo, 2);
     await term.wait(1000);
 
-    term.clear();
-    await term.setPrompt("root@scorpion:~/ $ ");
-
-    // START INTERACTIVE SESSION
-    term.print("SYSTEM READY. ENTER COMMAND TO CONTINUE.");
-
     while (true) {
-        const fullInput = await term.input();
-        const parts = fullInput.split(/\s+/);
-        const command = parts[0];
-        const args = term.parseArgs(parts.slice(1));
+        await term.setPrompt("root@scorpion:~/ $ ");
+        term.print("\n[ MAIN OPERATIONAL MENU ]");
+        term.print("1. [ CYBER-WARFARE ] - Remote Access & Data Breach");
+        term.print("2. [ TACTICAL MAP ] - Render Sector Grid");
+        term.print("3. [ STRATEGIC SITREP ] - Global Tension Report");
+        term.print("4. [ KINETIC WARFARE ] - Weapons Authorization & Launch");
+        term.print("5. [ SYSTEM OVERRIDE ] - Bypass Safety Protocols");
+        term.print("6. [ REBOOT ] - Restart System");
 
-        if (command === "net_trace") {
-            const origin = args.origin || "127.0.0.1";
-            term.print(`[ INITIATING REVERSE TRACE: ${origin} ]`);
-            await term.wait(500);
-            for (let i = 1; i <= 4; i++) {
-                term.print(`HOP ${i}: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.0.${i} - ${Math.floor(Math.random()*100)}ms`);
-                await term.wait(300);
-            }
-            term.print("[ TRACE COMPLETE ]");
-        } else if (command === "SITREP") {
-            if (args.global) {
-                term.print("\n[ GLOBAL STRATEGIC SITUATION REPORT ]");
-                term.print("+------------------------------------------+");
-                term.print("| SECTOR         | TENSION | STATUS        |");
-                term.print("+----------------+---------+---------------+");
-                term.print("| NORTH_ATL      | 78%     | ELEVATED      |");
-                term.print("| PACIFIC_RIM    | 92%     | CRITICAL      |");
-                term.print("| EURASIA        | 85%     | UNSTABLE      |");
-                term.print("| OFF-WORLD      | 12%     | NOMINAL       |");
-                term.print("+----------------+---------+---------------+");
-                term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
-                term.print("+------------------------------------------+");
-            } else {
-                term.print("USAGE: SITREP --global");
-            }
-        } else if (command === "sig_int") {
-            if (args.intercept) {
-                await term.hexStream(4000, true, args.uplink || "UNKNOWN");
-            } else {
-                term.print("USAGE: sig_int --intercept --uplink [ID]");
-            }
-        } else if (command === "scp_fetch") {
-            if (args.target && args.method) {
-                term.print(`[ INITIATING BREACH: ${args.target} VIA ${args.method} ]`);
-                await term.bitStream(2000);
-                await term.progressBar("INJECTING PAYLOAD", 1500, 30);
-                await term.hexStream(2000, false);
-                term.print(`[ SUCCESS ] DATA ACQUIRED FROM ${args.target}`);
-            } else {
-                term.print("USAGE: scp_fetch --target [Agency] --method [Exploit]");
-            }
-        } else if (command === "map_render") {
-            const sector = args.sector || "GLOBAL";
-            await term.drawMap(sector);
-        } else if (command === "sys_override") {
-            if (args.force) {
+        term.print("\nSELECT MODULE [1-6]:");
+        const choice = await term.input();
+
+        if (choice === "1") {
+            await handleCyberWarfare();
+        } else if (choice === "2") {
+            term.print("ENTER SECTOR COORDINATES:");
+            const sector = await term.input();
+            await term.drawMap(sector || "GLOBAL");
+        } else if (choice === "3") {
+            term.print("\n[ GLOBAL STRATEGIC SITUATION REPORT ]");
+            term.print("+------------------------------------------+");
+            term.print("| SECTOR         | TENSION | STATUS        |");
+            term.print("+----------------+---------+---------------+");
+            term.print("| NORTH_ATL      | 78%     | ELEVATED      |");
+            term.print("| PACIFIC_RIM    | 92%     | CRITICAL      |");
+            term.print("| EURASIA        | 85%     | UNSTABLE      |");
+            term.print("| OFF-WORLD      | 12%     | NOMINAL       |");
+            term.print("+----------------+---------+---------------+");
+            term.print("| DEFCON STATUS: | [ 2 ]   | READY         |");
+            term.print("+------------------------------------------+");
+        } else if (choice === "4") {
+            await handleAuthLaunch({});
+        } else if (choice === "5") {
+            term.print("BYPASS REQUIRES CONFIRMATION. TYPE 'OVERRIDE' TO PROCEED:");
+            const confirm = await term.input();
+            if (confirm.toUpperCase() === "OVERRIDE") {
                 term.setKinetic(true);
                 term.print("\n+------------------------------------------+");
                 term.print("|   !!! SAFETY PROTOCOLS BYPASSED !!!      |");
                 term.print("+------------------------------------------+");
                 term.print("[ STATE: KINETIC/LETHAL ]");
-                term.print("[ MNT/DRIVE_01_ENCRYPTED ]");
             } else {
-                term.print("BYPASS REQUIRES --force FLAG.");
+                term.print("OVERRIDE ABORTED.");
             }
-        } else if (command === "auth_launch") {
-            await handleAuthLaunch(args);
-        } else if (command === "help") {
-            term.print("AVAILABLE: net_trace, SITREP, sig_int, scp_fetch, map_render, auth_launch, sys_override");
-        } else if (fullInput === "") {
-            // Do nothing
+        } else if (choice === "6") {
+            term.clear();
+            term.setKinetic(false);
+            await run();
+            return;
         } else {
-            term.print(`COMMAND NOT RECOGNIZED: ${command}`);
+            // Check for legacy command support
+            const parts = choice.split(/\s+/);
+            const cmd = parts[0];
+            const args = term.parseArgs(parts.slice(1));
+
+            if (cmd === "net_trace") {
+                const origin = args.origin || "127.0.0.1";
+                term.print(`[ INITIATING REVERSE TRACE: ${origin} ]`);
+                for (let i = 1; i <= 4; i++) {
+                    term.print(`HOP ${i}: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.0.${i} - ${Math.floor(Math.random()*100)}ms`);
+                    await term.wait(300);
+                }
+            } else {
+                term.print("INVALID SELECTION.");
+            }
         }
     }
 }
 
+async function handleCyberWarfare() {
+    term.print("\n[ CYBER-WARFARE MODULE ]");
+    term.print("SELECT TARGET AGENCY:");
+    term.print("A. PENTAGON");
+    term.print("B. NASA");
+    term.print("C. INTERPOL");
+    const targetChoice = await term.input();
+    let target = "UNKNOWN";
+    if (targetChoice.toUpperCase() === 'A') target = "PENTAGON";
+    else if (targetChoice.toUpperCase() === 'B') target = "NASA";
+    else if (targetChoice.toUpperCase() === 'C') target = "INTERPOL";
+    else target = targetChoice;
+
+    term.print(`\nSELECT EXPLOIT METHOD FOR [${target}]:`);
+    term.print("1. RSA-4096 BUFFER OVERFLOW");
+    term.print("2. SQL INJECTION (PROXY-CHAINED)");
+    term.print("3. ZERO-DAY KERNEL EXPLOIT");
+    const methodChoice = await term.input();
+    let method = "MANUAL_INTRUSION";
+    if (methodChoice === '1') method = "RSA_OVERFLOW";
+    else if (methodChoice === '2') method = "SQL_INJECTION";
+    else if (methodChoice === '3') method = "ZERO_DAY";
+
+    term.print(`\n[ INITIATING BREACH: ${target} VIA ${method} ]`);
+    await term.bitStream(2000);
+    await term.progressBar("INJECTING PAYLOAD", 1500, 30);
+    await term.hexStream(2000, true, target);
+    term.print(`[ SUCCESS ] DATA ACQUIRED FROM ${target}`);
+}
+
 async function handleAuthLaunch(args) {
-    let type = args.type || "ICBM";
+    let type = args.type || "NUCLEAR_ICBM";
     let coord = args.coord;
 
     if (!coord) {
+        term.print("\n[ KINETIC WEAPONS MODULE ]");
+        term.print("SELECT WEAPON SYSTEM:");
+        term.print("1. NUCLEAR ICBM (MIRV-EQUIPPED)");
+        term.print("2. ION CANNON (ORBITAL)");
+        term.print("3. DEEP-SPACE LASER");
+        const typeChoice = await term.input();
+        if (typeChoice === "2") type = "ION_CANNON";
+        else if (typeChoice === "3") type = "DS_LASER";
+
         term.print("\n[ INTERACTIVE TARGET ACQUISITION INITIATED ]");
         term.print("SELECT TARGET COUNTRY:");
-        term.print("OPTIONS: [ USA, RUSSIA, CHINA ]");
-        const country = await term.input();
+        term.print("1. USA");
+        term.print("2. RUSSIA");
+        term.print("3. CHINA");
+        const countryChoice = await term.input();
+        let country = "UNKNOWN";
+        if (countryChoice === "1") country = "USA";
+        else if (countryChoice === "2") country = "RUSSIA";
+        else if (countryChoice === "3") country = "CHINA";
+        else country = countryChoice;
 
         term.print(`\nSELECT SECTOR IN ${country.toUpperCase()}:`);
-        if (country.toLowerCase() === 'usa') term.print("OPTIONS: [ DC, NY, NORAD ]");
-        else if (country.toLowerCase() === 'russia') term.print("OPTIONS: [ MSW, STP, SEV ]");
-        else if (country.toLowerCase() === 'china') term.print("OPTIONS: [ BJG, SHG, HKG ]");
+        if (country.toLowerCase() === 'usa') term.print("1. DC | 2. NY | 3. NORAD");
+        else if (country.toLowerCase() === 'russia') term.print("1. MSW | 2. STP | 3. SEV");
+        else if (country.toLowerCase() === 'china') term.print("1. BJG | 2. SHG | 3. HKG");
         else term.print("OPTIONS: [ ALPHA, BRAVO, CHARLIE ]");
 
-        const sector = await term.input();
+        const sectorChoice = await term.input();
+        let sector = sectorChoice;
+        if (country.toLowerCase() === 'usa') {
+            if (sectorChoice === "1") sector = "DC";
+            else if (sectorChoice === "2") sector = "NY";
+            else if (sectorChoice === "3") sector = "NORAD";
+        } else if (country.toLowerCase() === 'russia') {
+            if (sectorChoice === "1") sector = "MSW";
+            else if (sectorChoice === "2") sector = "STP";
+            else if (sectorChoice === "3") sector = "SEV";
+        } else if (country.toLowerCase() === 'china') {
+            if (sectorChoice === "1") sector = "BJG";
+            else if (sectorChoice === "2") sector = "SHG";
+            else if (sectorChoice === "3") sector = "HKG";
+        }
 
         await term.simulateTargetSelection(country, sector);
         coord = `${country.toUpperCase()}_${sector.toUpperCase()}`;
@@ -380,42 +437,66 @@ async function handleAuthLaunch(args) {
     const confirm = await term.input();
 
     if (confirm.toLowerCase() === 'confirm') {
-        term.print("\n[ !!! KINETIC WEAPONS AUTHORIZED !!! ]");
-        term.print(`[ !!! TYPE: ${type.toUpperCase()} / COORD: ${coord} !!! ]\n`);
-        await term.wait(500);
+        term.print("\n" + "!".repeat(50));
+        term.print("!!! KINETIC WEAPONS AUTHORIZED !!!");
+        term.print("!".repeat(50));
+        term.print(`[ TYPE: ${type.toUpperCase()} ] [ COORD: ${coord} ]\n`);
+        await term.wait(1000);
 
-        await term.progressBar(`CALIBRATING ${type.toUpperCase()}`, 3000, 40);
+        await term.progressBar(`CALIBRATING ${type.toUpperCase()}`, 2000, 40);
 
         // Flight Path Trajectory Animation
-        term.print("\n[ CALCULATING TRAJECTORY ]");
-        await term.wait(800);
+        term.print("\n[ CALCULATING BALLISTIC TRAJECTORY ]");
+        await term.wait(500);
 
-        if (type.toUpperCase() === 'ION' || type.toUpperCase() === 'LASER') {
-            term.print(`[ ORBITAL COORDINATES: ${coord},042 ]`);
+        const gridHeight = 10;
+        const gridWidth = 40;
+        for (let i = 0; i < gridHeight; i++) {
+            let line = "";
+            for (let j = 0; j < gridWidth; j++) {
+                if (j === Math.floor(i * (gridWidth/gridHeight))) line += "X";
+                else line += ".";
+            }
+            term.print(line);
+            await term.wait(100);
+        }
+
+        if (type.toUpperCase() === 'ION_CANNON' || type.toUpperCase() === 'DS_LASER') {
+            term.print(`\n[ ORBITAL COORDINATES: ${coord},042 ]`);
             term.print(`[ ATMOSPHERIC IGNITION PROBABILITY: ${(Math.random() * 0.1 + 0.89).toFixed(4)} ]`);
         } else {
-            term.print(`[ ICBM BALLISTIC PATH: SUB-ORBITAL ARC ] [ APOAPSIS: 1200KM ]`);
+            term.print(`\n[ ICBM BALLISTIC PATH: SUB-ORBITAL ARC ] [ APOAPSIS: 1200KM ]`);
         }
 
-        const path = ["      *", "     /", "    /", "   /", "  /", " /", "/"];
-        for (const line of path) {
-            term.print(line);
-            await term.wait(200);
+        term.print("\n[ FINAL CODES VERIFIED ] [ STANDBY FOR LAUNCH ]");
+        await term.wait(1000);
+
+        for (let i = 5; i > 0; i--) {
+            term.print(`T-MINUS ${i}...`);
+            await term.wait(1000);
         }
 
-        term.print("\nT-MINUS 5..."); await term.wait(1000);
-        term.print("T-MINUS 4..."); await term.wait(1000);
-        term.print("T-MINUS 3..."); await term.wait(1000);
-        term.print("T-MINUS 2..."); await term.wait(1000);
-        term.print("T-MINUS 1..."); await term.wait(1000);
-        term.print("IGNITION.");
+        term.print("\n[ IGNITION ]");
+        term.setKinetic(true); // Ensure kinetic mode is active for final flash
         await term.wait(500);
+
+        // Simulation of screen flash / explosion
+        for (let i = 0; i < 5; i++) {
+            term.clear();
+            term.print("\n".repeat(10) + " ".repeat(20) + "██████████████████████████████");
+            term.print(" ".repeat(20) + "██████████████████████████████");
+            term.print(" ".repeat(20) + "██████████████████████████████");
+            await term.wait(50);
+            term.clear();
+            await term.wait(50);
+        }
 
         term.clear();
         term.print("\n\n\n");
         term.print("          [ MISSION ACCOMPLISHED ]");
         term.print("          [ TARGET NEUTRALIZED ]");
-        await term.wait(3000);
+        term.print("\n          [ WORLD DEFENSE SYSTEM: ACTIVE ]");
+        await term.wait(4000);
 
         term.setKinetic(false);
         term.clear();

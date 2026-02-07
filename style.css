@@ -20,9 +20,14 @@ body.kinetic {
     background-color: #0a0101;
     color: #ff3333;
     text-shadow: 0 0 8px rgba(255, 51, 51, 0.9);
-    animation: shake 0.1s infinite, flash 0.5s ease-out;
+    animation: shake 0.1s infinite, flash 0.5s ease-out, red-glow 2s infinite alternate;
     text-transform: uppercase;
     font-weight: bold;
+}
+
+@keyframes red-glow {
+    from { box-shadow: inset 0 0 50px rgba(255, 0, 0, 0.2); }
+    to { box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.5); }
 }
 
 body.kinetic .crt-overlay::after {
@@ -62,16 +67,35 @@ body.kinetic::after {
 .screen {
     padding: 40px;
     flex-grow: 1;
-    overflow-y: hidden;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
     position: relative;
     z-index: 1;
     box-sizing: border-box;
+    scroll-behavior: smooth;
+}
+
+.screen::-webkit-scrollbar {
+    width: 8px;
+}
+
+.screen::-webkit-scrollbar-track {
+    background: rgba(0, 50, 0, 0.1);
+}
+
+.screen::-webkit-scrollbar-thumb {
+    background: #33ff33;
+    border-radius: 4px;
+}
+
+body.kinetic .screen::-webkit-scrollbar-thumb {
+    background: #ff3333;
 }
 
 #output {
-    white-space: pre;
+    white-space: pre-wrap;
+    word-break: break-all;
     line-height: 1.2;
     font-size: 16px;
 }
